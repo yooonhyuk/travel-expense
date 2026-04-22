@@ -239,7 +239,7 @@
     border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     border: 1px solid rgba(255,255,255,0.5); z-index: 40;
   }
-  .tabbar button { border: 0; background: transparent; cursor: pointer; padding: 8px 14px; border-radius: 999px; display:flex; flex-direction:column; align-items:center; gap:2px; color: rgba(0,0,0,0.5); transition: .2s; min-width: 72px; }
+  .tabbar button { border: 0; background: transparent; cursor: pointer; padding: 8px 10px; border-radius: 999px; display:flex; flex-direction:column; align-items:center; gap:2px; color: rgba(0,0,0,0.5); transition: .2s; min-width: 58px; }
   .tabbar button.active { background: #fff; color: #000; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
   .tabbar button svg { width: 22px; height: 22px; }
   .tabbar button span { font: 600 11px var(--font-sans); white-space: nowrap; }
@@ -456,6 +456,14 @@
   .rank-cat-amt { font: 600 15px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .rank-cat-bar { height: 3px; background: rgba(120,120,128,0.1); border-radius: 1.5px; margin-top: 6px; overflow: hidden; }
   .rank-cat-bar-fill { height: 100%; border-radius: 1.5px; transition: width .3s ease; }
+
+  /* Settle screen (minimal) */
+  .settle-min-row { display: flex; align-items: center; gap: 8px; padding: 14px 16px; }
+  .settle-min-name { font: 500 15px var(--font-sans); color: var(--label); white-space: nowrap; }
+  .settle-min-arrow { font: 400 16px var(--font-sans); color: var(--label-tertiary); margin: 0 2px; }
+  .settle-min-amt { margin-left: auto; text-align: right; flex-shrink: 0; }
+  .settle-min-peso { font: 700 16px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; white-space: nowrap; letter-spacing: -0.3px; }
+  .settle-min-sub { font: 400 12px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -586,6 +594,7 @@ const Icon = ({ name, className }) => {
     case 'delete': return <svg {...ps} viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>;
     case 'swap':   return <svg {...ps} viewBox="0 0 24 24"><path d="M7 4l-4 4 4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>;
     case 'chevron':return <svg {...ps} viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>;
+    case 'settle': return <svg {...ps} viewBox="0 0 24 24"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M9 12h6M13 10l2 2-2 2"/></svg>;
     default: return null;
   }
 };
@@ -666,13 +675,12 @@ function EntryScreen({ onEnter }) {
 // =============================================================
 // HOME / HISTORY
 // =============================================================
-function HomeScreen({ expenses, onDelete, roomCode, fxTick, fxStatus, loading }) {
+function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
   const total = expenses.reduce((s,e) => s + (e.peso || 0), 0);
   const byMember = MEMBERS.map(m => {
     const paid = expenses.filter(e => e.payer === m.id).reduce((s,e) => s + (e.peso || 0), 0);
     return { ...m, paid };
   });
-  const [swipedId, setSwipedId] = useState(null);
 
   return (
     <>
@@ -725,31 +733,27 @@ function HomeScreen({ expenses, onDelete, roomCode, fxTick, fxStatus, loading })
           {expenses.map((e, i) => {
             const cat = CATEGORIES.find(c => c.id === e.cat) || CATEGORIES[CATEGORIES.length - 1];
             const payer = MEMBERS.find(m => m.id === e.payer) || { name: '?', color: '#8E8E93' };
-            const swiped = swipedId === e.id;
             return (
-              <div key={e.id} className={'swipe-wrap' + (swiped ? ' swiped' : '')}
-                   style={{ borderTop: i ? '0.5px solid rgba(60,60,67,0.2)' : 0 }}>
-                <div className="swipe-action" onClick={() => { onDelete(e.id); setSwipedId(null); }}>삭제</div>
-                <div className="exp-row" onClick={() => setSwipedId(swiped ? null : e.id)}>
-                  <div className="cat-icon" style={{ background: cat.color }}>
-                    <Icon name={cat.icon} />
-                  </div>
-                  <div className="exp-main">
-                    <div className="exp-title">{e.title}</div>
-                    <div className="exp-meta">{payer.name} · {formatRelativeDate(e.createdAt)} · {cat.label}</div>
-                  </div>
-                  <div className="exp-amt">
-                    <div className="exp-peso">{fmtPeso(e.peso)}</div>
-                    <div className="exp-won">{fmtWon(e.peso)}</div>
-                    <div className="exp-won">{fmtUsd(e.peso)}</div>
-                  </div>
+              <div key={e.id} className="exp-row" onClick={() => onEdit(e)}
+                   style={{ borderTop: i ? '0.5px solid rgba(60,60,67,0.2)' : 0, cursor: 'pointer' }}>
+                <div className="cat-icon" style={{ background: cat.color }}>
+                  <Icon name={cat.icon} />
+                </div>
+                <div className="exp-main">
+                  <div className="exp-title">{e.title}</div>
+                  <div className="exp-meta">{payer.name} · {formatRelativeDate(e.createdAt)} · {cat.label}</div>
+                </div>
+                <div className="exp-amt">
+                  <div className="exp-peso">{fmtPeso(e.peso)}</div>
+                  <div className="exp-won">{fmtWon(e.peso)}</div>
+                  <div className="exp-won">{fmtUsd(e.peso)}</div>
                 </div>
               </div>
             );
           })}
         </div>
         {expenses.length > 0 && (
-          <p className="footnote" style={{ padding: '8px 16px 0', textAlign: 'center' }}>항목을 탭하면 삭제 버튼이 나와요</p>
+          <p className="footnote" style={{ padding: '8px 16px 0', textAlign: 'center' }}>항목을 탭하면 수정할 수 있어요</p>
         )}
         <div className="bottom-pad"/>
       </div>
@@ -760,14 +764,16 @@ function HomeScreen({ expenses, onDelete, roomCode, fxTick, fxStatus, loading })
 // =============================================================
 // ADD EXPENSE
 // =============================================================
-function AddScreen({ onSave, onCancel, fxTick }) {
+function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
+  const isEdit = !!editing;
   const [ccy, setCcy] = useState('PHP');
-  const [raw, setRaw] = useState('');
-  const [payer, setPayer] = useState('th');
-  const [cat, setCat] = useState('food');
-  const [memo, setMemo] = useState('');
-  const [splitIds, setSplitIds] = useState(MEMBERS.map(m => m.id));
+  const [raw, setRaw] = useState(isEdit ? String(editing.peso) : '');
+  const [payer, setPayer] = useState(isEdit ? editing.payer : 'th');
+  const [cat, setCat] = useState(isEdit ? editing.cat : 'food');
+  const [memo, setMemo] = useState(isEdit ? (editing.title || '') : '');
+  const [splitIds, setSplitIds] = useState(isEdit ? (editing.split || MEMBERS.map(m => m.id)) : MEMBERS.map(m => m.id));
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const amountNumber = Number(raw || 0);
   const peso = ccy === 'PHP' ? amountNumber
@@ -801,14 +807,25 @@ function AddScreen({ onSave, onCancel, fxTick }) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!isEdit || deleting) return;
+    if (!confirm('이 지출을 삭제할까요?')) return;
+    setDeleting(true);
+    try {
+      await onDelete(editing.id);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="add-screen">
       <StatusBar />
       <div className="navbar">
         <button onClick={onCancel}>취소</button>
-        <span className="navbar-title">지출 추가</span>
+        <span className="navbar-title">{isEdit ? '지출 수정' : '지출 추가'}</span>
         <button onClick={save} style={{ fontWeight: 600, opacity: (!raw || amountNumber <= 0 || saving) ? 0.4 : 1 }}>
-          {saving ? '저장 중…' : '저장'}
+          {saving ? '저장 중…' : (isEdit ? '완료' : '저장')}
         </button>
       </div>
 
@@ -877,8 +894,22 @@ function AddScreen({ onSave, onCancel, fxTick }) {
 
         <div style={{ padding: '16px', marginTop: 4 }}>
           <button className="btn-primary" onClick={save} disabled={!raw || amountNumber <= 0 || splitIds.length === 0 || saving}>
-            {saving ? '저장 중…' : '저장'}
+            {saving ? '저장 중…' : (isEdit ? '변경사항 저장' : '저장')}
           </button>
+          {isEdit && (
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{
+                width: '100%', marginTop: 10, padding: 14, borderRadius: 14, border: 0,
+                background: 'rgba(255,59,48,0.08)', color: '#FF3B30',
+                font: '600 16px var(--font-sans)', cursor: 'pointer',
+                opacity: deleting ? 0.5 : 1,
+              }}
+            >
+              {deleting ? '삭제 중…' : '지출 삭제'}
+            </button>
+          )}
         </div>
         <div className="bottom-pad"/>
       </div>
@@ -988,6 +1019,83 @@ function StatsScreen({ expenses, fxTick }) {
               </div>
             );
           })}
+        </div>
+
+        <div className="bottom-pad"/>
+      </div>
+    </>
+  );
+}
+
+// =============================================================
+// SETTLE (minimal — 누가 누구에게 얼마)
+// =============================================================
+function SettleScreen({ expenses, fxTick }) {
+  const transfers = useMemo(() => {
+    const bal = Object.fromEntries(MEMBERS.map(m => [m.id, 0]));
+    expenses.forEach(e => {
+      if (!e.split || e.split.length === 0) return;
+      bal[e.payer] = (bal[e.payer] || 0) + e.peso;
+      const share = e.peso / e.split.length;
+      e.split.forEach(id => { bal[id] = (bal[id] || 0) - share; });
+    });
+    const arr = MEMBERS.map(m => ({ id: m.id, bal: bal[m.id] }));
+    const creditors = arr.filter(x => x.bal > 0.5).sort((a,b) => b.bal - a.bal);
+    const debtors   = arr.filter(x => x.bal < -0.5).sort((a,b) => a.bal - b.bal);
+    const out = [];
+    let i = 0, j = 0;
+    while (i < debtors.length && j < creditors.length) {
+      const pay = Math.min(-debtors[i].bal, creditors[j].bal);
+      out.push({ from: debtors[i].id, to: creditors[j].id, peso: pay });
+      debtors[i].bal += pay;
+      creditors[j].bal -= pay;
+      if (Math.abs(debtors[i].bal) < 0.5) i++;
+      if (creditors[j].bal < 0.5) j++;
+    }
+    return out;
+  }, [expenses]);
+
+  const total = expenses.reduce((s,e) => s + (e.peso || 0), 0);
+  const perPerson = total / MEMBERS.length;
+
+  return (
+    <>
+      <StatusBar />
+      <div className="content">
+        <div style={{ padding: '4px 16px 0' }}>
+          <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>정산</div>
+          <h1 className="large-title" style={{ fontSize: 32, lineHeight: '36px', marginTop: 2, whiteSpace: 'nowrap' }}>누가 누구에게</h1>
+          <p className="subhead" style={{ marginTop: 4 }}>1인당 {fmtPeso(perPerson)} · {fmtWon(perPerson)}</p>
+        </div>
+
+        <div style={{ padding: '20px 16px 0' }}>
+          {transfers.length === 0 ? (
+            <div style={{ background:'#fff', borderRadius: 14, padding: 28, textAlign:'center' }}>
+              <div style={{ fontSize: 32, marginBottom: 6 }}>✓</div>
+              <p className="body" style={{ fontWeight: 600 }}>정산 완료</p>
+              <p className="footnote" style={{ marginTop: 4 }}>추가 송금이 필요하지 않아요.</p>
+            </div>
+          ) : (
+            <div style={{ background:'#fff', borderRadius: 14, overflow: 'hidden' }}>
+              {transfers.map((t, i) => {
+                const from = MEMBERS.find(m => m.id === t.from);
+                const to   = MEMBERS.find(m => m.id === t.to);
+                return (
+                  <div key={i} className="settle-min-row" style={{ borderTop: i ? '0.5px solid rgba(60,60,67,0.15)' : 0 }}>
+                    <Avatar m={from} size={28}/>
+                    <span className="settle-min-name">{from.name}</span>
+                    <span className="settle-min-arrow">→</span>
+                    <Avatar m={to} size={28}/>
+                    <span className="settle-min-name">{to.name}</span>
+                    <div className="settle-min-amt">
+                      <div className="settle-min-peso">{fmtPeso(t.peso)}</div>
+                      <div className="settle-min-sub">{fmtWon(t.peso)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="bottom-pad"/>
@@ -1130,6 +1238,7 @@ function TabBar({ active, onChange }) {
     { id: 'home',   label: '홈',   icon: 'home' },
     { id: 'add',    label: '추가', icon: 'plus' },
     { id: 'stats',  label: '통계', icon: 'scale' },
+    { id: 'settle', label: '정산', icon: 'settle' },
     { id: 'fx',     label: '환전', icon: 'swap' },
   ];
   return (
@@ -1150,6 +1259,7 @@ function TabBar({ active, onChange }) {
 function App() {
   const [room, setRoom] = useState(null);
   const [tab, setTab] = useState('home');
+  const [editing, setEditing] = useState(null); // expense being edited, or null
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [banner, setBanner] = useState(null); // { kind, msg }
@@ -1218,32 +1328,57 @@ function App() {
     return () => unsub();
   }, [room]);
 
-  const addExpense = async (e) => {
-    if (!db) {
-      setExpenses(arr => [{ ...e, id: 'local-' + Date.now(), createdAt: new Date() }, ...arr]);
-      setTab('home');
-      return;
-    }
-    try {
-      await db.collection('rooms').doc(room).collection('expenses').add({
-        ...e,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      setTab('home');
-    } catch (err) {
-      console.error('add failed:', err);
-      setBanner({ kind: 'error', msg: '저장 실패: ' + err.message });
-      throw err;
+  const goHome = () => { setEditing(null); setTab('home'); };
+
+  const openAddNew = () => { setEditing(null); setTab('add'); };
+  const openEdit = (expense) => { setEditing(expense); setTab('add'); };
+
+  const saveExpense = async (payload) => {
+    if (editing) {
+      // Update existing
+      if (!db) {
+        setExpenses(arr => arr.map(e => e.id === editing.id ? { ...e, ...payload } : e));
+        goHome();
+        return;
+      }
+      try {
+        await db.collection('rooms').doc(room).collection('expenses').doc(editing.id).update(payload);
+        goHome();
+      } catch (err) {
+        console.error('update failed:', err);
+        setBanner({ kind: 'error', msg: '수정 실패: ' + err.message });
+        throw err;
+      }
+    } else {
+      // Create new
+      if (!db) {
+        setExpenses(arr => [{ ...payload, id: 'local-' + Date.now(), createdAt: new Date() }, ...arr]);
+        goHome();
+        return;
+      }
+      try {
+        await db.collection('rooms').doc(room).collection('expenses').add({
+          ...payload,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        goHome();
+      } catch (err) {
+        console.error('add failed:', err);
+        setBanner({ kind: 'error', msg: '저장 실패: ' + err.message });
+        throw err;
+      }
     }
   };
 
   const deleteExpense = async (id) => {
     if (!db) {
       setExpenses(arr => arr.filter(e => e.id !== id));
+      goHome();
       return;
     }
     try {
       await db.collection('rooms').doc(room).collection('expenses').doc(id).delete();
+      goHome();
     } catch (err) {
       console.error('delete failed:', err);
       setBanner({ kind: 'error', msg: '삭제 실패: ' + err.message });
@@ -1264,11 +1399,12 @@ function App() {
   return (
     <>
       {banner && <Banner kind={banner.kind} onDismiss={() => setBanner(null)}>{banner.msg}</Banner>}
-      {tab === 'home'   && <HomeScreen expenses={expenses} onDelete={deleteExpense} roomCode={room} fxTick={fxTick} fxStatus={fxStatus} loading={loading} />}
-      {tab === 'add'    && <AddScreen onSave={addExpense} onCancel={() => setTab('home')} fxTick={fxTick} />}
+      {tab === 'home'   && <HomeScreen expenses={expenses} onEdit={openEdit} roomCode={room} fxTick={fxTick} fxStatus={fxStatus} loading={loading} />}
+      {tab === 'add'    && <AddScreen onSave={saveExpense} onCancel={goHome} onDelete={deleteExpense} editing={editing} fxTick={fxTick} />}
       {tab === 'stats'  && <StatsScreen expenses={expenses} fxTick={fxTick} />}
+      {tab === 'settle' && <SettleScreen expenses={expenses} fxTick={fxTick} />}
       {tab === 'fx'     && <FxScreen fxTick={fxTick} fxStatus={fxStatus} fxUpdatedAt={fxUpdatedAt} onRefreshFx={fetchFx} />}
-      <TabBar active={tab} onChange={setTab} />
+      <TabBar active={tab} onChange={(t) => { setEditing(null); setTab(t); }} />
       <div className="home-indicator"/>
     </>
   );
