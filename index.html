@@ -961,7 +961,7 @@ function StatsScreen({ expenses, fxTick }) {
             <div className="stats-tile-sub">{fmtWon(grandTotal)} · {fmtUsd(grandTotal)}</div>
           </div>
           <div className="stats-tile">
-            <div className="stats-tile-label">1인 평균</div>
+            <div className="stats-tile-label">1인 평균 (6명)</div>
             <div className="stats-tile-amount">{fmtPeso(perPerson)}</div>
             <div className="stats-tile-sub">{fmtWon(perPerson)} · {fmtUsd(perPerson)}</div>
           </div>
@@ -1032,16 +1032,23 @@ function StatsScreen({ expenses, fxTick }) {
 // =============================================================
 function SettleScreen({ expenses, fxTick }) {
   const transfers = useMemo(() => {
+    // Integer shares: floor split, distribute remainder to first N in split order.
+    // Keeps all balances as whole pesos so displayed transfer amounts sum exactly to what was owed.
     const bal = Object.fromEntries(MEMBERS.map(m => [m.id, 0]));
     expenses.forEach(e => {
       if (!e.split || e.split.length === 0) return;
+      const n = e.split.length;
+      const base = Math.floor(e.peso / n);
+      const remainder = e.peso - base * n;
       bal[e.payer] = (bal[e.payer] || 0) + e.peso;
-      const share = e.peso / e.split.length;
-      e.split.forEach(id => { bal[id] = (bal[id] || 0) - share; });
+      e.split.forEach((id, idx) => {
+        const share = base + (idx < remainder ? 1 : 0);
+        bal[id] = (bal[id] || 0) - share;
+      });
     });
     const arr = MEMBERS.map(m => ({ id: m.id, bal: bal[m.id] }));
-    const creditors = arr.filter(x => x.bal > 0.5).sort((a,b) => b.bal - a.bal);
-    const debtors   = arr.filter(x => x.bal < -0.5).sort((a,b) => a.bal - b.bal);
+    const creditors = arr.filter(x => x.bal > 0).sort((a,b) => b.bal - a.bal);
+    const debtors   = arr.filter(x => x.bal < 0).sort((a,b) => a.bal - b.bal);
     const out = [];
     let i = 0, j = 0;
     while (i < debtors.length && j < creditors.length) {
@@ -1049,14 +1056,13 @@ function SettleScreen({ expenses, fxTick }) {
       out.push({ from: debtors[i].id, to: creditors[j].id, peso: pay });
       debtors[i].bal += pay;
       creditors[j].bal -= pay;
-      if (Math.abs(debtors[i].bal) < 0.5) i++;
-      if (creditors[j].bal < 0.5) j++;
+      if (debtors[i].bal === 0) i++;
+      if (creditors[j].bal === 0) j++;
     }
     return out;
   }, [expenses]);
 
   const total = expenses.reduce((s,e) => s + (e.peso || 0), 0);
-  const perPerson = total / MEMBERS.length;
 
   return (
     <>
@@ -1065,7 +1071,7 @@ function SettleScreen({ expenses, fxTick }) {
         <div style={{ padding: '4px 16px 0' }}>
           <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>정산</div>
           <h1 className="large-title" style={{ fontSize: 32, lineHeight: '36px', marginTop: 2, whiteSpace: 'nowrap' }}>누가 누구에게</h1>
-          <p className="subhead" style={{ marginTop: 4 }}>1인당 {fmtPeso(perPerson)} · {fmtWon(perPerson)}</p>
+          <p className="subhead" style={{ marginTop: 4 }}>총 지출 {fmtPeso(total)}</p>
         </div>
 
         <div style={{ padding: '20px 16px 0' }}>
