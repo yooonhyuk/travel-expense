@@ -222,9 +222,12 @@
   button { font-family: inherit; }
 
   /* Status bar */
-  .statusbar { height: 48px; display:flex; align-items:flex-end; justify-content:space-between; padding: 0 28px 6px; flex-shrink: 0; }
-  .statusbar.dark { color: #fff; }
-  .statusbar span { font: 600 15px var(--font-sans); letter-spacing: -0.2px; }
+  /* Top spacer — clears the phone mockup's notch on desktop and respects the
+     device safe area on mobile. Replaces the former fake iOS status bar. */
+  .statusbar-spacer { height: 44px; flex-shrink: 0; }
+  @media (max-width: 480px) {
+    .statusbar-spacer { height: max(env(safe-area-inset-top, 0px), 8px); }
+  }
 
   /* Scrollable content */
   .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
@@ -652,26 +655,12 @@ const Icon = ({ name, className }) => {
 // =============================================================
 // Small pieces
 // =============================================================
-const StatusBar = ({ dark }) => {
-  const [time, setTime] = useState(() => {
-    const d = new Date();
-    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-  });
-  useEffect(() => {
-    const id = setInterval(() => {
-      const d = new Date();
-      setTime(String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
-    }, 30_000);
-    return () => clearInterval(id);
-  }, []);
+// Spacer at the top of each screen. Keeps content below the device status
+// bar (iOS notch / system clock area) and below the phone mockup's notch on
+// desktop. No fake clock or battery icons — the real device shows them.
+const StatusBar = () => {
   return (
-    <div className={'statusbar' + (dark ? ' dark' : '')}>
-      <span>{time}</span>
-      <span style={{ display:'flex', gap:6, alignItems:'center' }}>
-        <svg width="18" height="11" viewBox="0 0 18 11"><rect x="0" y="7" width="3" height="4" rx="0.6" fill="currentColor"/><rect x="5" y="5" width="3" height="6" rx="0.6" fill="currentColor"/><rect x="10" y="3" width="3" height="8" rx="0.6" fill="currentColor"/><rect x="15" y="0" width="3" height="11" rx="0.6" fill="currentColor"/></svg>
-        <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0.5" y="0.5" width="21" height="10" rx="2.5" stroke="currentColor" strokeOpacity=".4" fill="none"/><rect x="2" y="2" width="16" height="7" rx="1" fill="currentColor"/></svg>
-      </span>
-    </div>
+    <div className="statusbar-spacer"/>
   );
 };
 
