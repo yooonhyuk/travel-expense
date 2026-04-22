@@ -772,8 +772,8 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
   const [cat, setCat] = useState(isEdit ? editing.cat : 'food');
   const [memo, setMemo] = useState(isEdit ? (editing.title || '') : '');
   const [splitIds, setSplitIds] = useState(isEdit ? (editing.split || MEMBERS.map(m => m.id)) : MEMBERS.map(m => m.id));
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  // Single in-flight flag prevents save/delete races on the same expense
+  const [busy, setBusy] = useState(null); // null | 'saving' | 'deleting'
 
   const amountNumber = Number(raw || 0);
   const peso = ccy === 'PHP' ? amountNumber
@@ -795,26 +795,26 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
   };
 
   const save = async () => {
-    if (!raw || amountNumber <= 0 || splitIds.length === 0 || saving) return;
-    setSaving(true);
+    if (!raw || amountNumber <= 0 || splitIds.length === 0 || busy) return;
+    setBusy('saving');
     try {
       await onSave({
         title: memo.trim() || CATEGORIES.find(c => c.id === cat).label,
         cat, payer, peso: Math.round(peso), split: splitIds,
       });
     } finally {
-      setSaving(false);
+      setBusy(null);
     }
   };
 
   const handleDelete = async () => {
-    if (!isEdit || deleting) return;
+    if (!isEdit || busy) return;
     if (!confirm('이 지출을 삭제할까요?')) return;
-    setDeleting(true);
+    setBusy('deleting');
     try {
       await onDelete(editing.id);
     } finally {
-      setDeleting(false);
+      setBusy(null);
     }
   };
 
@@ -824,8 +824,8 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
       <div className="navbar">
         <button onClick={onCancel}>취소</button>
         <span className="navbar-title">{isEdit ? '지출 수정' : '지출 추가'}</span>
-        <button onClick={save} style={{ fontWeight: 600, opacity: (!raw || amountNumber <= 0 || saving) ? 0.4 : 1 }}>
-          {saving ? '저장 중…' : (isEdit ? '완료' : '저장')}
+        <button onClick={save} style={{ fontWeight: 600, opacity: (!raw || amountNumber <= 0 || busy) ? 0.4 : 1 }}>
+          {busy === 'saving' ? '저장 중…' : (isEdit ? '완료' : '저장')}
         </button>
       </div>
 
@@ -893,21 +893,21 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
         </div>
 
         <div style={{ padding: '16px', marginTop: 4 }}>
-          <button className="btn-primary" onClick={save} disabled={!raw || amountNumber <= 0 || splitIds.length === 0 || saving}>
-            {saving ? '저장 중…' : (isEdit ? '변경사항 저장' : '저장')}
+          <button className="btn-primary" onClick={save} disabled={!raw || amountNumber <= 0 || splitIds.length === 0 || !!busy}>
+            {busy === 'saving' ? '저장 중…' : (isEdit ? '변경사항 저장' : '저장')}
           </button>
           {isEdit && (
             <button
               onClick={handleDelete}
-              disabled={deleting}
+              disabled={!!busy}
               style={{
                 width: '100%', marginTop: 10, padding: 14, borderRadius: 14, border: 0,
                 background: 'rgba(255,59,48,0.08)', color: '#FF3B30',
                 font: '600 16px var(--font-sans)', cursor: 'pointer',
-                opacity: deleting ? 0.5 : 1,
+                opacity: busy ? 0.5 : 1,
               }}
             >
-              {deleting ? '삭제 중…' : '지출 삭제'}
+              {busy === 'deleting' ? '삭제 중…' : '지출 삭제'}
             </button>
           )}
         </div>
@@ -1406,7 +1406,7 @@ function App() {
     <>
       {banner && <Banner kind={banner.kind} onDismiss={() => setBanner(null)}>{banner.msg}</Banner>}
       {tab === 'home'   && <HomeScreen expenses={expenses} onEdit={openEdit} roomCode={room} fxTick={fxTick} fxStatus={fxStatus} loading={loading} />}
-      {tab === 'add'    && <AddScreen onSave={saveExpense} onCancel={goHome} onDelete={deleteExpense} editing={editing} fxTick={fxTick} />}
+      {tab === 'add'    && <AddScreen key={editing ? editing.id : 'new'} onSave={saveExpense} onCancel={goHome} onDelete={deleteExpense} editing={editing} fxTick={fxTick} />}
       {tab === 'stats'  && <StatsScreen expenses={expenses} fxTick={fxTick} />}
       {tab === 'settle' && <SettleScreen expenses={expenses} fxTick={fxTick} />}
       {tab === 'fx'     && <FxScreen fxTick={fxTick} fxStatus={fxStatus} fxUpdatedAt={fxUpdatedAt} onRefreshFx={fetchFx} />}
