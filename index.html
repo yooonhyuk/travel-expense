@@ -480,6 +480,24 @@
   .settle-min-amt { margin-left: auto; padding-left: 6px; text-align: right; flex-shrink: 0; }
   .settle-min-peso { font: 700 16px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; white-space: nowrap; letter-spacing: -0.3px; }
   .settle-min-sub { font: 400 12px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 1px; }
+
+  /* Per-member summary (정산 멤버별 결산) */
+  .settle-sum-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; min-width: 0; }
+  .settle-sum-name {
+    font: 500 15px var(--font-sans); color: var(--label);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1 1 0; min-width: 0;
+  }
+  .settle-sum-amt { text-align: right; flex-shrink: 0; padding-left: 6px; }
+  .settle-sum-net { font: 700 16px var(--font-sans); font-variant-numeric: tabular-nums; white-space: nowrap; letter-spacing: -0.3px; }
+  .settle-sum-net.plus { color: #34C759; }
+  .settle-sum-net.minus { color: #FF3B30; }
+  .settle-sum-net.zero { color: var(--label-tertiary); }
+  .settle-sum-role { font: 400 11px var(--font-sans); color: var(--label-secondary); margin-top: 1px; white-space: nowrap; }
+  .settle-sum-detail { padding: 8px 16px 12px 52px; background: #FAFAFC; border-top: 0.5px solid rgba(60,60,67,0.08); }
+  .settle-sum-detail-row { display: flex; justify-content: space-between; padding: 6px 0; font: 500 14px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; }
+  .settle-sum-detail-row + .settle-sum-detail-row { border-top: 0.5px solid rgba(60,60,67,0.06); }
+  .settle-sum-detail-amt { color: var(--label); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -1117,6 +1135,7 @@ function StatsScreen({ expenses, fxTick }) {
 // =============================================================
 function SettleScreen({ expenses, fxTick }) {
   const MEMBERS = React.useContext(MembersContext);
+  const [expandedSumId, setExpandedSumId] = useState(null);
   const transfers = useMemo(() => {
     // All balance math in integer KRW (the 대표 통화). Each expense is converted
     // to KRW via current FX, rounded, then split with floor + remainder so
@@ -1149,6 +1168,35 @@ function SettleScreen({ expenses, fxTick }) {
     }
     return out;
   }, [expenses, fxTick, MEMBERS]);
+
+  // Per-member rollup from the transfer list: net amount + who they'll
+  // send to / receive from. This is what each person consults at final
+  // reckoning ("I need to send X total — to whom?").
+  const perMemberSummary = useMemo(() => {
+    const summary = {};
+    MEMBERS.forEach(m => {
+      summary[m.id] = { sent: 0, received: 0, sentTo: [], receivedFrom: [] };
+    });
+    transfers.forEach(t => {
+      if (summary[t.from]) {
+        summary[t.from].sent += t.krw;
+        summary[t.from].sentTo.push({ id: t.to, krw: t.krw });
+      }
+      if (summary[t.to]) {
+        summary[t.to].received += t.krw;
+        summary[t.to].receivedFrom.push({ id: t.from, krw: t.krw });
+      }
+    });
+    return MEMBERS
+      .map(m => ({
+        ...m,
+        net: summary[m.id].received - summary[m.id].sent,
+        sentTo: summary[m.id].sentTo,
+        receivedFrom: summary[m.id].receivedFrom,
+      }))
+      .filter(m => m.sentTo.length > 0 || m.receivedFrom.length > 0)
+      .sort((a, b) => b.net - a.net); // creditors first, then debtors
+  }, [transfers, MEMBERS]);
 
   const totalKRW = expenses.reduce((s,e) => s + expenseKRW(e), 0);
 
@@ -1191,6 +1239,61 @@ function SettleScreen({ expenses, fxTick }) {
             </div>
           )}
         </div>
+
+        {perMemberSummary.length > 0 && (
+          <>
+            <div className="section-header">멤버별 결산</div>
+            <div style={{ padding: '0 16px' }}>
+              <div style={{ background:'#fff', borderRadius: 14, overflow: 'hidden' }}>
+                {perMemberSummary.map((m, i) => {
+                  const isCreditor = m.net > 0;
+                  const isZero = m.net === 0;
+                  const details = isCreditor ? m.receivedFrom : m.sentTo;
+                  const canExpand = details.length >= 2;
+                  const expanded = expandedSumId === m.id;
+                  return (
+                    <div key={m.id} style={{ borderTop: i ? '0.5px solid rgba(60,60,67,0.15)' : 0 }}>
+                      <div
+                        className="settle-sum-row"
+                        onClick={() => canExpand && setExpandedSumId(expanded ? null : m.id)}
+                        style={{ cursor: canExpand ? 'pointer' : 'default' }}
+                      >
+                        <Avatar m={m} size={28}/>
+                        <span className="settle-sum-name" title={m.name}>{m.name}</span>
+                        <div className="settle-sum-amt">
+                          <div className={'settle-sum-net ' + (isCreditor ? 'plus' : isZero ? 'zero' : 'minus')}>
+                            {isZero ? '±0' : (isCreditor ? '+' : '−') + fmtKRW(Math.abs(m.net)).replace('₩', '₩')}
+                          </div>
+                          <div className="settle-sum-role">
+                            {isCreditor ? '받을 돈' : isZero ? '정산 완료' : '낼 돈'}
+                            {details.length > 0 && ' · ' + details.length + '건'}
+                          </div>
+                        </div>
+                        {canExpand && <Icon name="chevron" className={'rank-chevron' + (expanded ? ' open' : '')} />}
+                      </div>
+                      {expanded && (
+                        <div className="settle-sum-detail">
+                          {details.map((r, ii) => {
+                            const other = MEMBERS.find(mm => mm.id === r.id);
+                            return (
+                              <div key={ii} className="settle-sum-detail-row">
+                                <span>{isCreditor ? '← ' : '→ '}{other ? other.name : r.id}</span>
+                                <span className="settle-sum-detail-amt">{fmtKRW(r.krw)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <p className="footnote" style={{ padding: '10px 20px 0', textAlign: 'center' }}>
+              + 는 받을 돈, − 는 낼 돈 · 항목이 2건 이상이면 탭해서 상세보기
+            </p>
+          </>
+        )}
 
         <div className="bottom-pad"/>
       </div>
