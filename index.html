@@ -539,22 +539,63 @@ const CATEGORIES = [
 // Demo data used only when Firebase is not configured
 const nowMs = Date.now();
 const SEED_EXPENSES = [
-  { id: 's1', title: '조이조이 해산물',   cat: 'food',  payer: 'th', peso: 3200,  createdAt: new Date(nowMs - 1*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
-  { id: 's2', title: '트라이시클',         cat: 'trans', payer: 'ms', peso: 300,   createdAt: new Date(nowMs - 5*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
-  { id: 's3', title: 'Kawasan 폭포 입장료', cat: 'tour',  payer: 'yj', peso: 1800,  createdAt: new Date(nowMs - 9*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
-  { id: 's4', title: '모알보알 에어비앤비', cat: 'stay',  payer: 'tw', peso: 12400, createdAt: new Date(nowMs - 20*3600e3), split: ['th','ms','yj','tw','sm','yh'] },
-  { id: 's5', title: 'SM몰 기념품',         cat: 'shop',  payer: 'sm', peso: 950,   createdAt: new Date(nowMs - 26*3600e3), split: ['sm','yh'] },
-  { id: 's6', title: '세븐일레븐',          cat: 'etc',   payer: 'yh', peso: 420,   createdAt: new Date(nowMs - 34*3600e3), split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's1', title: '조이조이 해산물',   cat: 'food',  payer: 'th', amount: 3200,  currency: 'PHP', createdAt: new Date(nowMs - 1*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's2', title: '트라이시클',         cat: 'trans', payer: 'ms', amount: 300,   currency: 'PHP', createdAt: new Date(nowMs - 5*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's3', title: 'Kawasan 폭포 입장료', cat: 'tour',  payer: 'yj', amount: 1800,  currency: 'PHP', createdAt: new Date(nowMs - 9*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's4', title: '모알보알 에어비앤비', cat: 'stay',  payer: 'tw', amount: 300000, currency: 'KRW', createdAt: new Date(nowMs - 20*3600e3), split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's5', title: 'SM몰 기념품',         cat: 'shop',  payer: 'sm', amount: 950,   currency: 'PHP', createdAt: new Date(nowMs - 26*3600e3), split: ['sm','yh'] },
+  { id: 's6', title: '세븐일레븐',          cat: 'etc',   payer: 'yh', amount: 8,     currency: 'USD', createdAt: new Date(nowMs - 34*3600e3), split: ['th','ms','yj','tw','sm','yh'] },
 ];
 
 // =============================================================
 // Formatters (read live FX)
 // =============================================================
-const fmtPeso = (n) => '₱' + Math.round(n).toLocaleString();
-const fmtWon  = (n) => '₩' + Math.round(n * FX.KRW).toLocaleString();
-const fmtUsd  = (n) => {
-  const v = n * FX.USD;
-  return '$' + (Math.abs(v) < 100 ? v.toFixed(2) : Math.round(v).toLocaleString());
+// Currency formatters — each takes an amount ALREADY in the named currency
+const fmtKRW = (n) => '₩' + Math.round(n).toLocaleString();
+const fmtPHP = (n) => '₱' + Math.round(n).toLocaleString();
+const fmtUSD = (n) => '$' + (Math.abs(n) < 100 ? n.toFixed(2) : Math.round(n).toLocaleString());
+
+// Cross-currency conversion helpers (FX is PHP-base: ₱1 = FX.KRW won = FX.USD dollars)
+const krwToPhp = (krw) => krw / FX.KRW;
+const krwToUsd = (krw) => (krw / FX.KRW) * FX.USD;
+const toKRW = (amount, ccy) => {
+  if (ccy === 'KRW') return amount;
+  if (ccy === 'PHP') return amount * FX.KRW;
+  if (ccy === 'USD') return (amount / FX.USD) * FX.KRW;
+  return amount;
+};
+
+// Given an expense (possibly legacy with `peso` field), return its amount in KRW.
+// KRW is the canonical base for all aggregations because it's the 대표 통화.
+const expenseKRW = (e) => {
+  if (typeof e.amount === 'number' && e.currency) {
+    return toKRW(e.amount, e.currency);
+  }
+  // Legacy: docs that only have `peso` → treat as PHP
+  return (Number(e.peso) || 0) * FX.KRW;
+};
+
+// Returns the currency code for display (handles legacy `peso`-only docs)
+const expenseCcy = (e) => e.currency || (typeof e.peso === 'number' ? 'PHP' : 'KRW');
+
+// Line-item display: primary = original currency as user entered
+const itemPrimary = (e) => {
+  const amt = typeof e.amount === 'number' ? e.amount : (Number(e.peso) || 0);
+  const ccy = expenseCcy(e);
+  if (ccy === 'KRW') return fmtKRW(amt);
+  if (ccy === 'PHP') return fmtPHP(amt);
+  return fmtUSD(amt);
+};
+
+// Line-item display: secondaries = the other two currencies, converted from KRW base
+const itemSecondaries = (e) => {
+  const krw = expenseKRW(e);
+  const ccy = expenseCcy(e);
+  const out = [];
+  if (ccy !== 'KRW') out.push(fmtKRW(krw));
+  if (ccy !== 'PHP') out.push(fmtPHP(krwToPhp(krw)));
+  if (ccy !== 'USD') out.push(fmtUSD(krwToUsd(krw)));
+  return out;
 };
 
 function formatRelativeDate(t) {
@@ -676,10 +717,10 @@ function EntryScreen({ onEnter }) {
 // HOME / HISTORY
 // =============================================================
 function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
-  const total = expenses.reduce((s,e) => s + (e.peso || 0), 0);
+  const totalKRW = expenses.reduce((s,e) => s + expenseKRW(e), 0);
   const byMember = MEMBERS.map(m => {
-    const paid = expenses.filter(e => e.payer === m.id).reduce((s,e) => s + (e.peso || 0), 0);
-    return { ...m, paid };
+    const paidKRW = expenses.filter(e => e.payer === m.id).reduce((s,e) => s + expenseKRW(e), 0);
+    return { ...m, paidKRW };
   });
 
   return (
@@ -696,10 +737,10 @@ function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
 
         <div className="hero-total">
           <div className="hero-label">우리가 쓴 총 금액</div>
-          <div className="hero-amount"><span className="peso-symbol">₱</span>{Math.round(total).toLocaleString()}</div>
+          <div className="hero-amount"><span className="peso-symbol">₩</span>{Math.round(totalKRW).toLocaleString()}</div>
           <div className="hero-ccy-row">
-            <span className="hero-ccy"><span className="ccy-label">KRW</span>{fmtWon(total)}</span>
-            <span className="hero-ccy"><span className="ccy-label">USD</span>{fmtUsd(total)}</span>
+            <span className="hero-ccy"><span className="ccy-label">PHP</span>{fmtPHP(krwToPhp(totalKRW))}</span>
+            <span className="hero-ccy"><span className="ccy-label">USD</span>{fmtUSD(krwToUsd(totalKRW))}</span>
           </div>
           <div className="hero-fx" title={fxStatus === 'live' ? '실시간 환율' : '기본 환율 (API 실패)'}>
             ₱1 = ₩{FX.KRW.toFixed(2)} · ${FX.USD.toFixed(4)} {fxStatus === 'live' ? '· 실시간' : ''}
@@ -712,7 +753,7 @@ function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
             <div key={m.id} className="member-card">
               <Avatar m={m} />
               <span className="member-name">{m.name}</span>
-              <span className="member-amt">{fmtPeso(m.paid)}</span>
+              <span className="member-amt">{fmtKRW(m.paidKRW)}</span>
             </div>
           ))}
         </div>
@@ -744,9 +785,8 @@ function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
                   <div className="exp-meta">{payer.name} · {formatRelativeDate(e.createdAt)} · {cat.label}</div>
                 </div>
                 <div className="exp-amt">
-                  <div className="exp-peso">{fmtPeso(e.peso)}</div>
-                  <div className="exp-won">{fmtWon(e.peso)}</div>
-                  <div className="exp-won">{fmtUsd(e.peso)}</div>
+                  <div className="exp-peso">{itemPrimary(e)}</div>
+                  <div className="exp-won">{itemSecondaries(e).join(' · ')}</div>
                 </div>
               </div>
             );
@@ -766,8 +806,11 @@ function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
 // =============================================================
 function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
   const isEdit = !!editing;
-  const [ccy, setCcy] = useState('PHP');
-  const [raw, setRaw] = useState(isEdit ? String(editing.peso) : '');
+  // Prefill from editing's ORIGINAL currency/amount (not the KRW-normalized value)
+  const editCcy = isEdit ? expenseCcy(editing) : 'KRW';
+  const editAmount = isEdit ? (typeof editing.amount === 'number' ? editing.amount : Number(editing.peso) || 0) : 0;
+  const [ccy, setCcy] = useState(editCcy);
+  const [raw, setRaw] = useState(isEdit ? String(editAmount) : '');
   const [payer, setPayer] = useState(isEdit ? editing.payer : 'th');
   const [cat, setCat] = useState(isEdit ? editing.cat : 'food');
   const [memo, setMemo] = useState(isEdit ? (editing.title || '') : '');
@@ -776,13 +819,17 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
   const [busy, setBusy] = useState(null); // null | 'saving' | 'deleting'
 
   const amountNumber = Number(raw || 0);
-  const peso = ccy === 'PHP' ? amountNumber
-             : ccy === 'KRW' ? amountNumber / FX.KRW
-             :                 amountNumber / FX.USD;
 
-  const otherPreviews = ccy === 'PHP' ? [['KRW', fmtWon(peso)], ['USD', fmtUsd(peso)]]
-                      : ccy === 'KRW' ? [['PHP', fmtPeso(peso)], ['USD', fmtUsd(peso)]]
-                      :                 [['PHP', fmtPeso(peso)], ['KRW', fmtWon(peso)]];
+  // Preview the two OTHER currencies based on the user's selected currency
+  const otherPreviews = (() => {
+    const all = ['PHP', 'KRW', 'USD'].filter(c => c !== ccy);
+    const krw = toKRW(amountNumber, ccy);
+    return all.map(c => {
+      if (c === 'KRW') return ['KRW', fmtKRW(krw)];
+      if (c === 'PHP') return ['PHP', fmtPHP(krwToPhp(krw))];
+      return ['USD', fmtUSD(krwToUsd(krw))];
+    });
+  })();
 
   const key = (k) => {
     if (k === '⌫') setRaw(r => r.slice(0, -1));
@@ -800,7 +847,10 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
     try {
       await onSave({
         title: memo.trim() || CATEGORIES.find(c => c.id === cat).label,
-        cat, payer, peso: Math.round(peso), split: splitIds,
+        cat, payer,
+        amount: Math.round(amountNumber),
+        currency: ccy,
+        split: splitIds,
       });
     } finally {
       setBusy(null);
@@ -924,11 +974,11 @@ function StatsScreen({ expenses, fxTick }) {
   const perMember = useMemo(() => {
     const rows = MEMBERS.map(m => {
       const mine = expenses.filter(e => e.payer === m.id);
-      const total = mine.reduce((s, e) => s + (e.peso || 0), 0);
+      const total = mine.reduce((s, e) => s + expenseKRW(e), 0);
       const byCat = CATEGORIES
         .map(c => ({
           ...c,
-          total: mine.filter(e => e.cat === c.id).reduce((s, e) => s + (e.peso || 0), 0),
+          total: mine.filter(e => e.cat === c.id).reduce((s, e) => s + expenseKRW(e), 0),
         }))
         .filter(c => c.total > 0)
         .sort((a, b) => b.total - a.total);
@@ -936,7 +986,7 @@ function StatsScreen({ expenses, fxTick }) {
     });
     rows.sort((a, b) => b.total - a.total);
     return rows;
-  }, [expenses]);
+  }, [expenses, fxTick]);
 
   const grandTotal = perMember.reduce((s, m) => s + m.total, 0);
   const perPerson = grandTotal / MEMBERS.length;
@@ -957,13 +1007,13 @@ function StatsScreen({ expenses, fxTick }) {
         <div className="stats-summary" style={{ marginTop: 12 }}>
           <div className="stats-tile">
             <div className="stats-tile-label">총합</div>
-            <div className="stats-tile-amount">{fmtPeso(grandTotal)}</div>
-            <div className="stats-tile-sub">{fmtWon(grandTotal)} · {fmtUsd(grandTotal)}</div>
+            <div className="stats-tile-amount">{fmtKRW(grandTotal)}</div>
+            <div className="stats-tile-sub">{fmtPHP(krwToPhp(grandTotal))} · {fmtUSD(krwToUsd(grandTotal))}</div>
           </div>
           <div className="stats-tile">
             <div className="stats-tile-label">1인 평균 (6명)</div>
-            <div className="stats-tile-amount">{fmtPeso(perPerson)}</div>
-            <div className="stats-tile-sub">{fmtWon(perPerson)} · {fmtUsd(perPerson)}</div>
+            <div className="stats-tile-amount">{fmtKRW(perPerson)}</div>
+            <div className="stats-tile-sub">{fmtPHP(krwToPhp(perPerson))} · {fmtUSD(krwToUsd(perPerson))}</div>
           </div>
         </div>
 
@@ -981,14 +1031,14 @@ function StatsScreen({ expenses, fxTick }) {
                   <div className="rank-body">
                     <div className="rank-head">
                       <span className="rank-name">{m.name}</span>
-                      <span className="rank-amt">{fmtPeso(m.total)}</span>
+                      <span className="rank-amt">{fmtKRW(m.total)}</span>
                     </div>
                     <div className="rank-bar-track">
                       <div className="rank-bar-fill" style={{ width: barPct + '%', background: m.color }} />
                     </div>
                     <div className="rank-meta">
                       <span>{m.count}건 · 전체의 {Math.round(pct)}%</span>
-                      <span>{fmtWon(m.total)} · {fmtUsd(m.total)}</span>
+                      <span>{fmtPHP(krwToPhp(m.total))} · {fmtUSD(krwToUsd(m.total))}</span>
                     </div>
                   </div>
                   <Icon name="chevron" className={'rank-chevron' + (expanded ? ' open' : '')} />
@@ -1006,7 +1056,7 @@ function StatsScreen({ expenses, fxTick }) {
                               <Icon name={c.icon} />
                             </div>
                             <span className="rank-cat-name">{c.label}</span>
-                            <span className="rank-cat-amt">{fmtPeso(c.total)}</span>
+                            <span className="rank-cat-amt">{fmtKRW(c.total)}</span>
                           </div>
                           <div className="rank-cat-bar">
                             <div className="rank-cat-bar-fill" style={{ width: cPct + '%', background: c.color }} />
@@ -1032,15 +1082,17 @@ function StatsScreen({ expenses, fxTick }) {
 // =============================================================
 function SettleScreen({ expenses, fxTick }) {
   const transfers = useMemo(() => {
-    // Integer shares: floor split, distribute remainder to first N in split order.
-    // Keeps all balances as whole pesos so displayed transfer amounts sum exactly to what was owed.
+    // All balance math in integer KRW (the 대표 통화). Each expense is converted
+    // to KRW via current FX, rounded, then split with floor + remainder so
+    // transfer amounts sum exactly to what was owed.
     const bal = Object.fromEntries(MEMBERS.map(m => [m.id, 0]));
     expenses.forEach(e => {
       if (!e.split || e.split.length === 0) return;
+      const amountKRW = Math.round(expenseKRW(e));
       const n = e.split.length;
-      const base = Math.floor(e.peso / n);
-      const remainder = e.peso - base * n;
-      bal[e.payer] = (bal[e.payer] || 0) + e.peso;
+      const base = Math.floor(amountKRW / n);
+      const remainder = amountKRW - base * n;
+      bal[e.payer] = (bal[e.payer] || 0) + amountKRW;
       e.split.forEach((id, idx) => {
         const share = base + (idx < remainder ? 1 : 0);
         bal[id] = (bal[id] || 0) - share;
@@ -1053,16 +1105,16 @@ function SettleScreen({ expenses, fxTick }) {
     let i = 0, j = 0;
     while (i < debtors.length && j < creditors.length) {
       const pay = Math.min(-debtors[i].bal, creditors[j].bal);
-      out.push({ from: debtors[i].id, to: creditors[j].id, peso: pay });
+      out.push({ from: debtors[i].id, to: creditors[j].id, krw: pay });
       debtors[i].bal += pay;
       creditors[j].bal -= pay;
       if (debtors[i].bal === 0) i++;
       if (creditors[j].bal === 0) j++;
     }
     return out;
-  }, [expenses]);
+  }, [expenses, fxTick]);
 
-  const total = expenses.reduce((s,e) => s + (e.peso || 0), 0);
+  const totalKRW = expenses.reduce((s,e) => s + expenseKRW(e), 0);
 
   return (
     <>
@@ -1071,7 +1123,7 @@ function SettleScreen({ expenses, fxTick }) {
         <div style={{ padding: '4px 16px 0' }}>
           <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>정산</div>
           <h1 className="large-title" style={{ fontSize: 32, lineHeight: '36px', marginTop: 2, whiteSpace: 'nowrap' }}>누가 누구에게</h1>
-          <p className="subhead" style={{ marginTop: 4 }}>총 지출 {fmtPeso(total)}</p>
+          <p className="subhead" style={{ marginTop: 4 }}>총 지출 {fmtKRW(totalKRW)}</p>
         </div>
 
         <div style={{ padding: '20px 16px 0' }}>
@@ -1094,8 +1146,8 @@ function SettleScreen({ expenses, fxTick }) {
                     <Avatar m={to} size={28}/>
                     <span className="settle-min-name">{to.name}</span>
                     <div className="settle-min-amt">
-                      <div className="settle-min-peso">{fmtPeso(t.peso)}</div>
-                      <div className="settle-min-sub">{fmtWon(t.peso)}</div>
+                      <div className="settle-min-peso">{fmtKRW(t.krw)}</div>
+                      <div className="settle-min-sub">{fmtPHP(krwToPhp(t.krw))}</div>
                     </div>
                   </div>
                 );
@@ -1150,8 +1202,8 @@ function FxRow({ ccy, active, value, onFocus }) {
 }
 
 function FxScreen({ fxTick, fxStatus, fxUpdatedAt, onRefreshFx }) {
-  const [active, setActive] = useState('PHP');
-  const [raw, setRaw] = useState('1000');
+  const [active, setActive] = useState('KRW');
+  const [raw, setRaw] = useState('10000');
 
   const val = Number(raw || 0);
   const values = {
@@ -1312,12 +1364,15 @@ function App() {
       (snap) => {
         const rows = snap.docs.map(d => {
           const data = d.data();
+          const hasNew = typeof data.amount === 'number' && typeof data.currency === 'string';
           return {
             id: d.id,
             title: data.title,
             cat: data.cat,
             payer: data.payer,
-            peso: Number(data.peso) || 0,
+            // New format: { amount, currency }. Legacy: { peso } → treat as PHP.
+            amount: hasNew ? Number(data.amount) : (Number(data.peso) || 0),
+            currency: hasNew ? data.currency : 'PHP',
             split: data.split || [],
             createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : (data.createdAt || null),
           };
