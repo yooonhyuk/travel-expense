@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="여행 가계부">
 <title>여행 가계부 · Cebu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -212,7 +216,7 @@
   :root {
     --font-sans: "Pretendard Variable", "Pretendard", "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   }
-  html, body { margin:0; padding:0; background:#222; font-family: var(--font-sans); min-height: 100vh; color: var(--label); }
+  html, body { margin:0; padding:0; background:#222; font-family: var(--font-sans); min-height: 100vh; min-height: 100dvh; color: var(--label); overscroll-behavior-y: contain; }
   * { box-sizing: border-box; }
   body { display: grid; place-items: start center; padding: 24px 0; }
   .phone { position: relative; width: 375px; height: 780px; background: #000; border-radius: 48px; overflow: hidden; box-shadow: 0 0 0 8px #222, 0 0 0 10px #333, 0 30px 60px rgba(0,0,0,0.4); }
@@ -235,7 +239,11 @@
 
   /* Tab bar (floating glass) */
   .tabbar {
-    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    position: absolute; left: 50%; transform: translateX(-50%);
+    /* Keep tabbar clear of the iOS home indicator gesture zone.
+       env(safe-area-inset-bottom) is 0 on desktop and in Safari tabs,
+       non-zero on iOS PWA / home-indicator devices. */
+    bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 8px));
     display: flex; gap: 2px; padding: 6px;
     background: rgba(245,245,245,0.75); backdrop-filter: blur(22px) saturate(180%);
     -webkit-backdrop-filter: blur(22px) saturate(180%);
@@ -379,7 +387,7 @@
   /* Floating save button */
   .save-dock { position: absolute; bottom: 88px; left: 16px; right: 16px; z-index: 20; }
 
-  .bottom-pad { height: 96px; }
+  .bottom-pad { height: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
   /* FX calculator */
   .fx-card { background: #fff; border-radius: 14px; margin: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
@@ -409,6 +417,7 @@
     body > div { width: 100%; height: 100vh; height: 100dvh; }
     .phone { width: 100% !important; height: 100vh !important; height: 100dvh !important; border-radius: 0 !important; box-shadow: none !important; }
     .phone .notch { display: none !important; }
+    .phone .home-indicator { display: none !important; }
     body > div > .caption { display: none !important; }
   }
 
@@ -514,6 +523,19 @@ if (FIREBASE_CONFIGURED) {
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
+    // Offline persistence: cache reads in IndexedDB, queue writes when offline.
+    // Safe to ignore failures — Firestore still works with its in-memory cache.
+    // `synchronizeTabs: true` is needed if the user opens multiple tabs; may
+    // fall back silently on browsers that don't support it (Safari private, etc).
+    db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Offline persistence disabled: multiple tabs open without sync support');
+      } else if (err.code === 'unimplemented') {
+        console.warn('Offline persistence unavailable in this browser');
+      } else {
+        console.warn('Offline persistence failed:', err);
+      }
+    });
   } catch (err) {
     console.error('Firebase init failed:', err);
   }
