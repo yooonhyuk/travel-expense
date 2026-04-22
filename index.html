@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>여행 가계부 · Cebu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<!-- Fonts: Inter + Pretendard via CDN -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>/* iOS 26 Design System — Colors, Type, Materials, Spacing
+   Values sourced from the Apple iOS and iPadOS 26 UI Kit (Community) Figma file.
+   Use semantic vars (--label, --system-background) rather than raw palette vars
+   so Dark Mode resolves automatically via prefers-color-scheme.
+*/
+
+/* SF Pro is an Apple system font and is NOT redistributable. On Apple devices
+   it resolves via `local(...)`. On other platforms we fall back to Inter from
+   Google Fonts — very close metrics for SF Pro Text at body sizes.
+   To ensure Inter loads in HTML, add:
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+*/
+@font-face { font-family: "SF Pro"; src: local("SF Pro Text"), local("SF Pro"), local("-apple-system"), local("Inter"); font-weight: 400; }
+@font-face { font-family: "SF Pro"; src: local("SF Pro Text Medium"), local("SF Pro Medium"), local("Inter Medium"); font-weight: 500; }
+@font-face { font-family: "SF Pro"; src: local("SF Pro Text Semibold"), local("SF Pro Semibold"), local("Inter SemiBold"); font-weight: 600; }
+@font-face { font-family: "SF Pro"; src: local("SF Pro Text Bold"), local("SF Pro Bold"), local("Inter Bold"); font-weight: 700; }
+
+/* --- Palette: system colors ---------------------------------------- */
+:root {
+  /* Primary system accent ramp (Light) */
+  --palette-red:     #FF3B30;
+  --palette-orange:  #FF9500;
+  --palette-yellow:  #FFCC00;
+  --palette-green:   #34C759;
+  --palette-mint:    #00C7BE;
+  --palette-teal:    #30B0C7;
+  --palette-cyan:    #32ADE6;
+  --palette-blue:    #007AFF;
+  --palette-indigo:  #5856D6;
+  --palette-purple:  #AF52DE;
+  --palette-pink:    #FF2D55;
+  --palette-brown:   #A2845E;
+
+  /* Gray ramp */
+  --palette-gray:    #8E8E93;
+  --palette-gray-2:  #AEAEB2;
+  --palette-gray-3:  #C7C7CC;
+  --palette-gray-4:  #D1D1D6;
+  --palette-gray-5:  #E5E5EA;
+  --palette-gray-6:  #F2F2F7;
+  --palette-white:   #FFFFFF;
+  --palette-black:   #000000;
+
+  /* Semantic — Light (default) */
+  --accent:              var(--palette-blue);
+  --label:               rgb(0, 0, 0);
+  --label-secondary:     rgba(60, 60, 67, 0.60);
+  --label-tertiary:      rgba(60, 60, 67, 0.30);
+  --label-quaternary:    rgba(60, 60, 67, 0.18);
+  --placeholder-text:    rgba(60, 60, 67, 0.30);
+
+  --system-background:            #FFFFFF;
+  --secondary-system-background:  #F2F2F7;
+  --tertiary-system-background:   #FFFFFF;
+
+  --system-grouped-background:            #F2F2F7;
+  --secondary-system-grouped-background:  #FFFFFF;
+  --tertiary-system-grouped-background:   #F2F2F7;
+
+  --fill:                rgba(120, 120, 128, 0.20);
+  --fill-secondary:      rgba(120, 120, 128, 0.16);
+  --fill-tertiary:       rgba(118, 118, 128, 0.12);
+  --fill-quaternary:     rgba(116, 116, 128, 0.08);
+
+  --separator:           rgba(60, 60, 67, 0.29);      /* non-opaque */
+  --separator-opaque:    #C6C6C8;
+
+  --link:                #007AFF;
+  --destructive:         #FF3B30;
+
+  /* Liquid Glass — Regular */
+  --glass-fill:           rgba(245, 245, 245, 0.60);
+  --glass-border:         rgba(255, 255, 255, 0.35);
+  --glass-shadow:         0 8px 40px rgba(0, 0, 0, 0.12);
+  --glass-backdrop:       blur(20px) saturate(180%);
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;     /* Liquid Glass Small */
+  --radius-xl: 22px;
+  --radius-2xl: 34px;    /* Liquid Glass Medium */
+  --radius-pill: 1000px;
+  --radius-sheet-top: 10px;
+
+  /* Spacing (4pt base) */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;   /* default horizontal margin */
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Shadows */
+  --shadow-card:     0 1px 3px rgba(0, 0, 0, 0.10);
+  --shadow-float:    0 8px 40px rgba(0, 0, 0, 0.12);
+  --shadow-sheet:    0 -2px 24px rgba(0, 0, 0, 0.18);
+
+  /* Scroll edge effect */
+  --scroll-edge-soft: linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0));
+  --scroll-edge-hard: linear-gradient(to bottom, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0));
+
+  /* Font stacks */
+  --font-sans: "SF Pro", "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --font-rounded: "SF Pro Rounded", "SF Pro", "Nunito", -apple-system, system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "Menlo", "Cascadia Code", monospace;
+
+  /* --- Canonical text styles (iOS 26 Dynamic Type, Default size) --- */
+  --text-large-title:  700 34px/41px var(--font-sans);
+  --text-title-1:      700 28px/34px var(--font-sans);
+  --text-title-2:      700 22px/28px var(--font-sans);
+  --text-title-3:      600 20px/25px var(--font-sans);
+  --text-headline:     600 17px/22px var(--font-sans);
+  --text-body:         400 17px/22px var(--font-sans);
+  --text-body-emph:    600 17px/22px var(--font-sans);
+  --text-callout:      400 16px/21px var(--font-sans);
+  --text-subhead:      400 15px/20px var(--font-sans);
+  --text-footnote:     400 13px/18px var(--font-sans);
+  --text-caption-1:    400 12px/16px var(--font-sans);
+  --text-caption-2:    400 11px/13px var(--font-sans);
+
+  /* Letter-spacing tracking */
+  --track-large-title: 0.374px;
+  --track-title-1:     0.364px;
+  --track-body:        -0.43px;
+  --track-callout:     -0.32px;
+  --track-subhead:     -0.23px;
+  --track-footnote:    -0.08px;
+  --track-caption:     0px;
+}
+
+/* --- Dark mode overrides ------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #0091FF;
+
+    --label:               rgb(255, 255, 255);
+    --label-secondary:     rgba(235, 235, 245, 0.60);
+    --label-tertiary:      rgba(235, 235, 245, 0.30);
+    --label-quaternary:    rgba(235, 235, 245, 0.18);
+    --placeholder-text:    rgba(235, 235, 245, 0.30);
+
+    --system-background:            #000000;
+    --secondary-system-background:  #1C1C1E;
+    --tertiary-system-background:   #2C2C2E;
+
+    --system-grouped-background:            #000000;
+    --secondary-system-grouped-background:  #1C1C1E;
+    --tertiary-system-grouped-background:   #2C2C2E;
+
+    --fill:              rgba(120, 120, 128, 0.36);
+    --fill-secondary:    rgba(120, 120, 128, 0.32);
+    --fill-tertiary:     rgba(118, 118, 128, 0.24);
+    --fill-quaternary:   rgba(118, 118, 128, 0.18);
+
+    --separator:         rgba(84, 84, 88, 0.65);
+    --separator-opaque:  #38383A;
+
+    --link:              #0091FF;
+    --destructive:       #FF453A;
+
+    --glass-fill:        rgba(0, 0, 0, 0.60);
+    --glass-border:      rgba(255, 255, 255, 0.08);
+    --glass-shadow:      0 8px 40px rgba(0, 0, 0, 0.50);
+
+    --scroll-edge-soft: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+    --scroll-edge-hard: linear-gradient(to bottom, rgba(0,0,0,0.95) 50%, rgba(0,0,0,0));
+  }
+}
+
+/* --- Utility classes ---------------------------------------------- */
+.ios-large-title { font: var(--text-large-title); letter-spacing: var(--track-large-title); color: var(--label); }
+.ios-title-1     { font: var(--text-title-1);     letter-spacing: var(--track-title-1);     color: var(--label); }
+.ios-title-2     { font: var(--text-title-2);     color: var(--label); }
+.ios-title-3     { font: var(--text-title-3);     color: var(--label); }
+.ios-headline    { font: var(--text-headline);    letter-spacing: var(--track-body);        color: var(--label); }
+.ios-body        { font: var(--text-body);        letter-spacing: var(--track-body);        color: var(--label); }
+.ios-callout     { font: var(--text-callout);     letter-spacing: var(--track-callout);     color: var(--label); }
+.ios-subhead     { font: var(--text-subhead);     letter-spacing: var(--track-subhead);     color: var(--label); }
+.ios-footnote    { font: var(--text-footnote);    letter-spacing: var(--track-footnote);    color: var(--label-secondary); }
+.ios-caption-1   { font: var(--text-caption-1);   color: var(--label-secondary); }
+.ios-caption-2   { font: var(--text-caption-2);   color: var(--label-secondary); }
+
+.ios-glass {
+  background: var(--glass-fill);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-2xl);
+}
+</style>
+<style>
+  :root {
+    --font-sans: "Pretendard Variable", "Pretendard", "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  }
+  html, body { margin:0; padding:0; background:#222; font-family: var(--font-sans); min-height: 100vh; color: var(--label); }
+  * { box-sizing: border-box; }
+  body { display: grid; place-items: start center; padding: 24px 0; }
+  .phone { position: relative; width: 375px; height: 780px; background: #000; border-radius: 48px; overflow: hidden; box-shadow: 0 0 0 8px #222, 0 0 0 10px #333, 0 30px 60px rgba(0,0,0,0.4); }
+  .screen { position: absolute; inset: 0; background: var(--system-grouped-background); overflow: hidden; display: flex; flex-direction: column; }
+  .notch { position:absolute; top:10px; left:50%; transform:translateX(-50%); width:110px; height:28px; background:#000; border-radius:20px; z-index:60; }
+  .caption { color:#888; font: 500 13px var(--font-sans); text-align:center; margin-top: 12px; }
+  button { font-family: inherit; }
+
+  /* Status bar */
+  .statusbar { height: 48px; display:flex; align-items:flex-end; justify-content:space-between; padding: 0 28px 6px; flex-shrink: 0; }
+  .statusbar.dark { color: #fff; }
+  .statusbar span { font: 600 15px var(--font-sans); letter-spacing: -0.2px; }
+
+  /* Scrollable content */
+  .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* Tab bar (floating glass) */
+  .tabbar {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 2px; padding: 6px;
+    background: rgba(245,245,245,0.75); backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.5); z-index: 40;
+  }
+  .tabbar button { border: 0; background: transparent; cursor: pointer; padding: 8px 14px; border-radius: 999px; display:flex; flex-direction:column; align-items:center; gap:2px; color: rgba(0,0,0,0.5); transition: .2s; min-width: 72px; }
+  .tabbar button.active { background: #fff; color: #000; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+  .tabbar button svg { width: 22px; height: 22px; }
+  .tabbar button span { font: 600 11px var(--font-sans); white-space: nowrap; }
+
+  /* Home indicator */
+  .home-indicator { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; background: #000; opacity: .25; border-radius: 3px; z-index: 30; }
+
+  /* Generic */
+  .large-title { font: 700 34px/41px var(--font-sans); letter-spacing: -0.8px; color: var(--label); margin: 0; }
+  .title-3 { font: 600 20px/25px var(--font-sans); letter-spacing: -0.4px; margin: 0; }
+  .headline { font: 600 17px/22px var(--font-sans); letter-spacing: -0.4px; margin: 0; }
+  .body { font: 400 17px/22px var(--font-sans); letter-spacing: -0.4px; margin: 0; }
+  .subhead { font: 400 15px/20px var(--font-sans); letter-spacing: -0.2px; margin: 0; color: var(--label-secondary); }
+  .footnote { font: 400 13px/18px var(--font-sans); color: var(--label-secondary); margin: 0; }
+  .caption { font: 500 11px/13px var(--font-sans); color: var(--label-tertiary); margin: 0; }
+  .section-header { padding: 20px 16px 6px; font: 400 13px/18px var(--font-sans); color: var(--label-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+  .card { background: var(--secondary-system-grouped-background, #fff); border-radius: 12px; overflow: hidden; margin: 0 16px; }
+  .row { display:flex; align-items:center; padding: 12px 16px; gap: 12px; }
+  .row + .row { border-top: 0.5px solid rgba(60,60,67,0.2); margin-left: 16px; padding-left: 0; }
+  .row-divider { margin-left: 52px; }
+
+  .pill-tag { display: inline-flex; align-items:center; padding: 2px 8px; border-radius: 999px; background: rgba(120,120,128,0.16); font: 500 12px var(--font-sans); color: var(--label-secondary); }
+
+  /* Room code entry */
+  .entry { background: linear-gradient(180deg, #f5f3ff 0%, #fff 60%); height: 100%; display: flex; flex-direction: column; padding: 24px; }
+  .entry-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; }
+  .entry-icon { width: 88px; height: 88px; border-radius: 22px; background: linear-gradient(135deg, #007AFF, #5856D6); display:grid; place-items:center; box-shadow: 0 10px 30px rgba(88,86,214,0.35); }
+  .entry-title { font: 700 28px/34px var(--font-sans); letter-spacing: -0.6px; text-align: center; margin: 8px 0 0; white-space: nowrap; }
+  .entry-sub { font: 400 15px/22px var(--font-sans); color: var(--label-secondary); text-align: center; max-width: 260px; }
+  .entry-input { width: 100%; padding: 18px 20px; border: 0; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1.5px rgba(60,60,67,0.12); font: 500 17px var(--font-sans); letter-spacing: -0.2px; outline: none; text-align: center; font-variant: tabular-nums; }
+  .entry-input:focus { box-shadow: inset 0 0 0 2px #007AFF; }
+  .btn-primary { width: 100%; padding: 16px; border: 0; border-radius: 14px; background: #007AFF; color: #fff; font: 600 17px var(--font-sans); letter-spacing: -0.4px; cursor: pointer; transition: opacity .15s, transform .1s; }
+  .btn-primary:active { opacity: 0.85; transform: scale(0.99); }
+  .btn-primary:disabled { opacity: 0.4; }
+
+  /* Home */
+  .hero-total { padding: 12px 16px 20px; }
+  .hero-label { font: 600 13px var(--font-sans); color: var(--label-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+  .hero-amount { font: 700 44px/50px var(--font-sans); letter-spacing: -1.2px; color: var(--label); margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .hero-amount .peso-symbol { color: var(--label-secondary); margin-right: 2px; }
+  .hero-won { font: 500 17px var(--font-sans); color: var(--label-secondary); letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
+  .hero-ccy-row { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+  .hero-ccy { font: 500 15px var(--font-sans); color: var(--label-secondary); letter-spacing: -0.2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .hero-ccy .ccy-label { font: 600 10px var(--font-sans); color: var(--label-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-right: 4px; }
+  .hero-fx { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(120,120,128,0.14); font: 500 11px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; }
+  .hero-fx::before { content: "●"; color: #34C759; font-size: 8px; }
+
+  /* Members strip */
+  .members-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 4px 16px 0; }
+  .member-card { background: #fff; border-radius: 12px; padding: 12px 10px; display:flex; flex-direction:column; align-items:center; gap: 6px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display:grid; place-items:center; color: #fff; font: 700 14px var(--font-sans); flex-shrink:0; }
+  .member-name { font: 500 12px var(--font-sans); color: var(--label); white-space: nowrap; }
+  .nowrap { white-space: nowrap; }
+  .member-amt { font: 600 13px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; }
+
+  /* Expense row */
+  .exp-row { display:flex; align-items:center; gap: 12px; padding: 12px 16px; background: #fff; position: relative; }
+  .exp-row + .exp-row { border-top: 0.5px solid rgba(60,60,67,0.2); margin-left: 16px; padding-left: 0; }
+  .cat-icon { width: 36px; height: 36px; border-radius: 10px; display:grid; place-items:center; flex-shrink: 0; }
+  .cat-icon svg { width: 20px; height: 20px; color: #fff; }
+  .exp-main { flex: 1; min-width: 0; }
+  .exp-title { font: 500 15px/20px var(--font-sans); letter-spacing: -0.2px; color: var(--label); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .exp-meta { font: 400 12px/16px var(--font-sans); color: var(--label-secondary); margin-top: 2px; }
+  .exp-amt { text-align: right; flex-shrink: 0; }
+  .exp-peso { font: 600 15px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .exp-won { font: 400 11.5px/15px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* Swipe reveal */
+  .swipe-wrap { position: relative; overflow: hidden; background: #FF3B30; }
+  .swipe-wrap .swipe-action { position: absolute; right: 0; top: 0; bottom: 0; width: 72px; display:grid; place-items:center; color: #fff; font: 500 15px var(--font-sans); }
+  .swipe-wrap .exp-row { transform: translateX(0); transition: transform .25s; background: #fff; }
+  .swipe-wrap.swiped .exp-row { transform: translateX(-72px); }
+
+  /* Add expense screen */
+  .add-screen { background: var(--system-grouped-background); height: 100%; display: flex; flex-direction: column; }
+  .amount-big { text-align: center; padding: 28px 16px 8px; }
+  .amount-label { font: 500 13px var(--font-sans); color: var(--label-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .amount-row { display:flex; justify-content:center; align-items:baseline; gap: 4px; margin-top: 8px; }
+  .amount-sym { font: 500 32px var(--font-sans); color: var(--label-tertiary); }
+  .amount-val { font: 700 56px/60px var(--font-sans); letter-spacing: -2px; color: var(--label); font-variant-numeric: tabular-nums; min-width: 60px; }
+  .amount-convert { font: 500 15px var(--font-sans); color: var(--label-secondary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .ccy-toggle { display:flex; background: rgba(120,120,128,0.16); border-radius: 10px; padding: 2px; width: fit-content; margin: 12px auto 0; }
+  .ccy-toggle button { border: 0; background: transparent; padding: 6px 12px; border-radius: 8px; font: 600 13px var(--font-sans); color: var(--label-secondary); cursor: pointer; white-space: nowrap; }
+  .ccy-toggle button.on { background: #fff; color: var(--label); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  /* Keypad */
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; background: rgba(120,120,128,0.08); }
+  .key { background: #fff; border: 0; border-radius: 10px; padding: 14px 0; font: 500 22px var(--font-sans); color: var(--label); cursor: pointer; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
+  .key:active { background: rgba(120,120,128,0.2); }
+  .key.back { background: rgba(120,120,128,0.16); }
+
+  /* Chips */
+  .chip-row { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; padding: 8px 14px; border-radius: 999px; background: #fff; border: 1.5px solid transparent; font: 500 14px var(--font-sans); color: var(--label); cursor: pointer; white-space: nowrap; display:inline-flex; align-items:center; gap: 6px; }
+  .chip.selected { background: #007AFF; color: #fff; }
+  .chip.selected svg { color: #fff; }
+  .chip svg { width: 16px; height: 16px; color: var(--label-secondary); }
+
+  .field { padding: 12px 16px; background: #fff; }
+  .field + .field { border-top: 0.5px solid rgba(60,60,67,0.2); }
+  .field-label { font: 500 13px var(--font-sans); color: var(--label-secondary); margin-bottom: 4px; }
+  .field input { width: 100%; border: 0; padding: 4px 0; font: 400 17px var(--font-sans); outline: none; background: transparent; }
+
+  /* Member checkbox grid */
+  .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 16px; }
+  .member-chip { background: #fff; border: 1.5px solid transparent; border-radius: 12px; padding: 10px 8px; display:flex; align-items:center; gap: 8px; cursor: pointer; }
+  .member-chip.on { border-color: #007AFF; background: rgba(0,122,255,0.06); }
+  .member-chip .avatar { width: 28px; height: 28px; font-size: 12px; }
+  .member-chip span { font: 500 14px var(--font-sans); white-space: nowrap; }
+
+  /* Settle */
+  .settle-card { background: #fff; border-radius: 14px; margin: 0 16px 10px; padding: 14px; }
+  .settle-row { display:flex; align-items:center; gap: 10px; }
+  .settle-arrow { font: 400 20px var(--font-sans); color: var(--label-tertiary); }
+  .settle-amt { margin-left: auto; text-align: right; }
+  .settle-peso { font: 700 17px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .settle-won { font: 400 11.5px/15px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .balance-row { display:flex; align-items:center; padding: 12px 16px; background: #fff; gap: 12px; }
+  .balance-row + .balance-row { border-top: 0.5px solid rgba(60,60,67,0.2); margin-left: 16px; padding-left: 0; }
+  .balance-row .body { white-space: nowrap; }
+  .settle-row .headline { white-space: nowrap; }
+  .balance-num { margin-left: auto; font: 600 15px var(--font-sans); font-variant-numeric: tabular-nums; }
+  .balance-num.plus { color: #34C759; }
+  .balance-num.minus { color: #FF3B30; }
+
+  /* Nav bar */
+  .navbar { padding: 8px 16px 10px; background: rgba(242,242,247,0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 0.5px solid rgba(60,60,67,0.2); display:flex; align-items:center; gap: 8px; flex-shrink: 0; }
+  .navbar-title { flex: 1; text-align: center; font: 600 17px var(--font-sans); letter-spacing: -0.4px; }
+  .navbar button { border: 0; background: transparent; color: #007AFF; font: 400 17px var(--font-sans); cursor: pointer; padding: 4px 8px; white-space: nowrap; flex-shrink: 0; }
+  .navbar-title { white-space: nowrap; }
+
+  /* Floating save button */
+  .save-dock { position: absolute; bottom: 88px; left: 16px; right: 16px; z-index: 20; }
+
+  .bottom-pad { height: 96px; }
+
+  /* FX calculator */
+  .fx-card { background: #fff; border-radius: 14px; margin: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .fx-row { display: flex; align-items: center; gap: 14px; padding: 18px 18px; cursor: pointer; position: relative; transition: background .15s; }
+  .fx-row + .fx-row { border-top: 0.5px solid rgba(60,60,67,0.2); }
+  .fx-row.active { background: rgba(0,122,255,0.06); }
+  .fx-row.active::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; background: #007AFF; border-radius: 0 2px 2px 0; }
+  .fx-flag { font-size: 30px; line-height: 1; flex-shrink: 0; }
+  .fx-meta { flex-shrink: 0; min-width: 72px; }
+  .fx-code { font: 700 15px var(--font-sans); color: var(--label); letter-spacing: -0.2px; }
+  .fx-name { font: 400 12px var(--font-sans); color: var(--label-secondary); margin-top: 1px; }
+  .fx-amount { margin-left: auto; display: flex; align-items: baseline; gap: 2px; min-width: 0; white-space: nowrap; overflow: hidden; }
+  .fx-sym { font: 500 18px var(--font-sans); color: var(--label-tertiary); }
+  .fx-val { font: 600 22px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; letter-spacing: -0.4px; }
+  .fx-val.active { color: #007AFF; }
+  .fx-caret { display: inline-block; width: 2px; height: 22px; background: #007AFF; margin-left: 2px; animation: fx-blink 1s step-end infinite; border-radius: 1px; align-self: center; }
+  @keyframes fx-blink { 50% { opacity: 0; } }
+
+  .fx-rate-row { display: flex; justify-content: space-between; padding: 6px 0; font: 500 15px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; }
+  .fx-rate-row + .fx-rate-row { border-top: 0.5px solid rgba(60,60,67,0.12); }
+  .fx-rate-row span:nth-child(2) { color: var(--label-tertiary); }
+
+  /* Mobile fullscreen overrides */
+  @media (max-width: 480px) {
+    html, body { background: var(--system-grouped-background) !important; }
+    body { padding: 0 !important; display: block !important; }
+    body > div { width: 100%; height: 100vh; height: 100dvh; }
+    .phone { width: 100% !important; height: 100vh !important; height: 100dvh !important; border-radius: 0 !important; box-shadow: none !important; }
+    .phone .notch { display: none !important; }
+    body > div > .caption { display: none !important; }
+  }
+
+  /* App-level status banner */
+  .app-banner {
+    position: absolute; top: 12px; left: 12px; right: 12px; z-index: 50;
+    padding: 10px 14px; border-radius: 10px;
+    font: 500 13px/18px var(--font-sans);
+    color: #8a6d00; background: #FFF4C2; border: 1px solid #FFE58F;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .app-banner.error { color: #7a1a1a; background: #FFE2E0; border-color: #FFC3BE; }
+  .app-banner.ok { color: #0f5132; background: #D1F4DB; border-color: #A7E5B9; }
+  .app-banner button {
+    margin-left: auto; background: transparent; border: 0; font: 600 13px var(--font-sans); color: inherit; cursor: pointer; padding: 0 4px; flex-shrink: 0;
+  }
+
+  /* Stats screen */
+  .stats-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 16px 0; }
+  .stats-tile { background: #fff; border-radius: 14px; padding: 14px 16px; }
+  .stats-tile-label { font: 500 12px var(--font-sans); color: var(--label-secondary); letter-spacing: -0.1px; }
+  .stats-tile-amount { font: 700 22px var(--font-sans); color: var(--label); letter-spacing: -0.6px; font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 4px; }
+  .stats-tile-sub { font: 400 11px/14px var(--font-sans); color: var(--label-secondary); margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .rank-row-wrap { background: #fff; }
+  .rank-row-wrap + .rank-row-wrap { border-top: 0.5px solid rgba(60,60,67,0.18); }
+  .rank-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; }
+  .rank-num { width: 18px; font: 500 12px var(--font-sans); color: var(--label-tertiary); text-align: center; flex-shrink: 0; }
+  .rank-body { flex: 1; min-width: 0; }
+  .rank-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .rank-name { font: 600 17px var(--font-sans); letter-spacing: -0.4px; color: var(--label); white-space: nowrap; }
+  .rank-amt { font: 700 17px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; letter-spacing: -0.3px; white-space: nowrap; }
+  .rank-bar-track { height: 4px; background: rgba(120,120,128,0.16); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .rank-bar-fill { height: 100%; border-radius: 2px; transition: width .3s ease; }
+  .rank-meta { display: flex; justify-content: space-between; margin-top: 6px; font: 400 12px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; gap: 8px; }
+  .rank-meta span:last-child { white-space: nowrap; }
+  .rank-chevron { color: var(--label-tertiary); transition: transform .2s; flex-shrink: 0; width: 18px; height: 18px; }
+  .rank-chevron.open { transform: rotate(90deg); }
+
+  .rank-expand { padding: 10px 16px 14px 50px; background: #FAFAFC; border-top: 0.5px solid rgba(60,60,67,0.08); }
+  .rank-cat { padding: 8px 0; }
+  .rank-cat + .rank-cat { border-top: 0.5px solid rgba(60,60,67,0.06); }
+  .rank-cat-head { display: flex; align-items: center; gap: 10px; }
+  .rank-cat-head .cat-icon { width: 26px; height: 26px; border-radius: 7px; }
+  .rank-cat-head .cat-icon svg { width: 16px; height: 16px; }
+  .rank-cat-name { font: 500 15px var(--font-sans); color: var(--label); flex: 1; }
+  .rank-cat-amt { font: 600 15px var(--font-sans); color: var(--label); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rank-cat-bar { height: 3px; background: rgba(120,120,128,0.1); border-radius: 1.5px; margin-top: 6px; overflow: hidden; }
+  .rank-cat-bar-fill { height: 100%; border-radius: 1.5px; transition: width .3s ease; }
+</style>
+</head>
+<body>
+
+<div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div id="app" class="screen"></div>
+  </div>
+  <p class="caption">우리 세부 여행 가계부 · 6인 정산</p>
+</div>
+
+<!-- React (production) + Babel standalone via CDN -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+<!-- Firebase (compat SDK — works with Babel standalone) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script type="text/babel">
+const { useState, useMemo, useEffect, useCallback } = React;
+
+// =============================================================
+// Firebase config — REPLACE THE PLACEHOLDER VALUES
+// =============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyB3gmcvwziFd5sMXMLMKe2kldv6Ax7sbqY",
+  authDomain: "buce-f1e2b.firebaseapp.com",
+  projectId: "buce-f1e2b",
+  storageBucket: "buce-f1e2b.firebasestorage.app",
+  messagingSenderId: "124803277227",
+  appId: "1:124803277227:web:7093d2aaef6a9c1de3b2ee",
+  measurementId: "G-RK5XN34K1R",
+};
+
+const FIREBASE_CONFIGURED = Object.values(firebaseConfig).every(v => v && v !== "TODO");
+let db = null;
+if (FIREBASE_CONFIGURED) {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  } catch (err) {
+    console.error('Firebase init failed:', err);
+  }
+}
+
+// =============================================================
+// Static data
+// =============================================================
+const MEMBERS = [
+  { id: 'th', name: '태형', color: '#007AFF' },
+  { id: 'ms', name: '민성', color: '#34C759' },
+  { id: 'yj', name: '영진', color: '#FF9500' },
+  { id: 'tw', name: '태욱', color: '#AF52DE' },
+  { id: 'sm', name: '성민', color: '#FF2D55' },
+  { id: 'yh', name: '윤혁', color: '#30B0C7' },
+];
+
+// Exchange rates — ₱1 base. Mutated on successful live fetch.
+const FX = { KRW: 24.5, USD: 0.017 };
+
+const CATEGORIES = [
+  { id: 'food',  label: '식비', color: '#FF9500', icon: 'food' },
+  { id: 'stay',  label: '숙박', color: '#5856D6', icon: 'stay' },
+  { id: 'trans', label: '교통', color: '#30B0C7', icon: 'trans' },
+  { id: 'tour',  label: '관광', color: '#34C759', icon: 'tour' },
+  { id: 'shop',  label: '쇼핑', color: '#FF2D55', icon: 'shop' },
+  { id: 'etc',   label: '기타', color: '#8E8E93', icon: 'etc' },
+];
+
+// Demo data used only when Firebase is not configured
+const nowMs = Date.now();
+const SEED_EXPENSES = [
+  { id: 's1', title: '조이조이 해산물',   cat: 'food',  payer: 'th', peso: 3200,  createdAt: new Date(nowMs - 1*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's2', title: '트라이시클',         cat: 'trans', payer: 'ms', peso: 300,   createdAt: new Date(nowMs - 5*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's3', title: 'Kawasan 폭포 입장료', cat: 'tour',  payer: 'yj', peso: 1800,  createdAt: new Date(nowMs - 9*3600e3),  split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's4', title: '모알보알 에어비앤비', cat: 'stay',  payer: 'tw', peso: 12400, createdAt: new Date(nowMs - 20*3600e3), split: ['th','ms','yj','tw','sm','yh'] },
+  { id: 's5', title: 'SM몰 기념품',         cat: 'shop',  payer: 'sm', peso: 950,   createdAt: new Date(nowMs - 26*3600e3), split: ['sm','yh'] },
+  { id: 's6', title: '세븐일레븐',          cat: 'etc',   payer: 'yh', peso: 420,   createdAt: new Date(nowMs - 34*3600e3), split: ['th','ms','yj','tw','sm','yh'] },
+];
+
+// =============================================================
+// Formatters (read live FX)
+// =============================================================
+const fmtPeso = (n) => '₱' + Math.round(n).toLocaleString();
+const fmtWon  = (n) => '₩' + Math.round(n * FX.KRW).toLocaleString();
+const fmtUsd  = (n) => {
+  const v = n * FX.USD;
+  return '$' + (Math.abs(v) < 100 ? v.toFixed(2) : Math.round(v).toLocaleString());
+};
+
+function formatRelativeDate(t) {
+  if (!t) return '';
+  const date = t instanceof Date ? t : (t && typeof t.toDate === 'function' ? t.toDate() : new Date(t));
+  if (isNaN(date.getTime())) return '';
+  const now = new Date();
+  const diffMs = now - date;
+  if (diffMs < 60_000) return '방금';
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday); startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  if (date >= startOfToday)     return `오늘 ${hh}:${mm}`;
+  if (date >= startOfYesterday) return `어제 ${hh}:${mm}`;
+  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+}
+
+// =============================================================
+// Icons
+// =============================================================
+const Icon = ({ name, className }) => {
+  const p = { width: 24, height: 24, fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  const ps = { ...p, className };
+  switch (name) {
+    case 'food':   return <svg {...ps} viewBox="0 0 24 24"><path d="M7 3v9a2 2 0 104 0V3M5 3v5M9 3v5M17 3c-1.5 0-3 2-3 5s1.5 5 3 5v7"/></svg>;
+    case 'stay':   return <svg {...ps} viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/></svg>;
+    case 'trans':  return <svg {...ps} viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/><path d="M3 12h18"/></svg>;
+    case 'tour':   return <svg {...ps} viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>;
+    case 'shop':   return <svg {...ps} viewBox="0 0 24 24"><path d="M4 7h16l-1.5 12a2 2 0 01-2 2h-9a2 2 0 01-2-2L4 7z"/><path d="M8 7a4 4 0 018 0"/></svg>;
+    case 'etc':    return <svg {...ps} viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>;
+    case 'home':   return <svg {...ps} viewBox="0 0 24 24"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>;
+    case 'plus':   return <svg {...ps} viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>;
+    case 'scale':  return <svg {...ps} viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M8 7l-3 7a3 3 0 006 0l-3-7M16 7l-3 7a3 3 0 006 0l-3-7"/></svg>;
+    case 'back':   return <svg {...ps} viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>;
+    case 'check':  return <svg {...ps} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>;
+    case 'delete': return <svg {...ps} viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>;
+    case 'swap':   return <svg {...ps} viewBox="0 0 24 24"><path d="M7 4l-4 4 4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>;
+    case 'chevron':return <svg {...ps} viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>;
+    default: return null;
+  }
+};
+
+// =============================================================
+// Small pieces
+// =============================================================
+const StatusBar = ({ dark }) => {
+  const [time, setTime] = useState(() => {
+    const d = new Date();
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  });
+  useEffect(() => {
+    const id = setInterval(() => {
+      const d = new Date();
+      setTime(String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+    }, 30_000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className={'statusbar' + (dark ? ' dark' : '')}>
+      <span>{time}</span>
+      <span style={{ display:'flex', gap:6, alignItems:'center' }}>
+        <svg width="18" height="11" viewBox="0 0 18 11"><rect x="0" y="7" width="3" height="4" rx="0.6" fill="currentColor"/><rect x="5" y="5" width="3" height="6" rx="0.6" fill="currentColor"/><rect x="10" y="3" width="3" height="8" rx="0.6" fill="currentColor"/><rect x="15" y="0" width="3" height="11" rx="0.6" fill="currentColor"/></svg>
+        <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0.5" y="0.5" width="21" height="10" rx="2.5" stroke="currentColor" strokeOpacity=".4" fill="none"/><rect x="2" y="2" width="16" height="7" rx="1" fill="currentColor"/></svg>
+      </span>
+    </div>
+  );
+};
+
+const Avatar = ({ m, size = 36 }) => (
+  <div className="avatar" style={{ background: m.color, width: size, height: size, fontSize: size * 0.4 }}>{m.name[0]}</div>
+);
+
+const Banner = ({ kind = 'info', children, onDismiss }) => (
+  <div className={'app-banner' + (kind === 'error' ? ' error' : kind === 'ok' ? ' ok' : '')}>
+    <span style={{ flex: 1 }}>{children}</span>
+    {onDismiss && <button onClick={onDismiss}>✕</button>}
+  </div>
+);
+
+// =============================================================
+// ENTRY screen
+// =============================================================
+function EntryScreen({ onEnter }) {
+  const [code, setCode] = useState('jejubank');
+  return (
+    <div className="entry">
+      <StatusBar />
+      <div className="entry-hero">
+        <div className="entry-icon">
+          <Icon name="scale" />
+          <style>{`.entry-icon svg { color: #fff; width: 44px; height: 44px; stroke-width: 1.5; }`}</style>
+        </div>
+        <h1 className="entry-title">여행 가계부</h1>
+        <p className="entry-sub">방 코드를 입력하면 우리 팀의<br/>여행 가계부를 이어서 쓸 수 있어요.</p>
+      </div>
+      <div style={{ display:'flex', flexDirection:'column', gap: 12, paddingBottom: 24 }}>
+        <input
+          className="entry-input"
+          value={code}
+          onChange={e => setCode(e.target.value)}
+          autoCapitalize="none"
+          autoCorrect="off"
+          onKeyDown={(e) => { if (e.key === 'Enter' && code.trim()) onEnter(code.trim()); }}
+        />
+        <button className="btn-primary" disabled={!code.trim()} onClick={() => onEnter(code.trim())}>입장하기</button>
+        <p className="footnote" style={{ textAlign:'center', marginTop: 6 }}>
+          {FIREBASE_CONFIGURED
+            ? '같은 코드를 친구들에게 알려주면 데이터가 공유돼요.'
+            : 'Firebase 미설정 · 로컬 데모 모드로 실행돼요.'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================
+// HOME / HISTORY
+// =============================================================
+function HomeScreen({ expenses, onDelete, roomCode, fxTick, fxStatus, loading }) {
+  const total = expenses.reduce((s,e) => s + (e.peso || 0), 0);
+  const byMember = MEMBERS.map(m => {
+    const paid = expenses.filter(e => e.payer === m.id).reduce((s,e) => s + (e.peso || 0), 0);
+    return { ...m, paid };
+  });
+  const [swipedId, setSwipedId] = useState(null);
+
+  return (
+    <>
+      <StatusBar />
+      <div className="content">
+        <div style={{ padding: '4px 16px 0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>방 · {roomCode}</div>
+            <div className="large-title" style={{ fontSize: 28, lineHeight: '32px', marginTop: 2, whiteSpace: 'nowrap' }}>Cebu · 우리 팀</div>
+          </div>
+          <div className="pill-tag">6명</div>
+        </div>
+
+        <div className="hero-total">
+          <div className="hero-label">우리가 쓴 총 금액</div>
+          <div className="hero-amount"><span className="peso-symbol">₱</span>{Math.round(total).toLocaleString()}</div>
+          <div className="hero-ccy-row">
+            <span className="hero-ccy"><span className="ccy-label">KRW</span>{fmtWon(total)}</span>
+            <span className="hero-ccy"><span className="ccy-label">USD</span>{fmtUsd(total)}</span>
+          </div>
+          <div className="hero-fx" title={fxStatus === 'live' ? '실시간 환율' : '기본 환율 (API 실패)'}>
+            ₱1 = ₩{FX.KRW.toFixed(2)} · ${FX.USD.toFixed(4)} {fxStatus === 'live' ? '· 실시간' : ''}
+          </div>
+        </div>
+
+        <div className="section-header">멤버별 결제 금액</div>
+        <div className="members-strip">
+          {byMember.map(m => (
+            <div key={m.id} className="member-card">
+              <Avatar m={m} />
+              <span className="member-name">{m.name}</span>
+              <span className="member-amt">{fmtPeso(m.paid)}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="section-header">지출 내역 · {expenses.length}건</div>
+        <div style={{ background: '#fff', margin: '0 16px', borderRadius: 14, overflow: 'hidden' }}>
+          {loading && expenses.length === 0 && (
+            <div style={{ padding: 20, textAlign: 'center' }}>
+              <p className="footnote">불러오는 중…</p>
+            </div>
+          )}
+          {!loading && expenses.length === 0 && (
+            <div style={{ padding: 20, textAlign: 'center' }}>
+              <p className="body">아직 지출이 없어요</p>
+              <p className="footnote" style={{ marginTop: 4 }}>아래 "추가" 탭에서 첫 지출을 등록해보세요.</p>
+            </div>
+          )}
+          {expenses.map((e, i) => {
+            const cat = CATEGORIES.find(c => c.id === e.cat) || CATEGORIES[CATEGORIES.length - 1];
+            const payer = MEMBERS.find(m => m.id === e.payer) || { name: '?', color: '#8E8E93' };
+            const swiped = swipedId === e.id;
+            return (
+              <div key={e.id} className={'swipe-wrap' + (swiped ? ' swiped' : '')}
+                   style={{ borderTop: i ? '0.5px solid rgba(60,60,67,0.2)' : 0 }}>
+                <div className="swipe-action" onClick={() => { onDelete(e.id); setSwipedId(null); }}>삭제</div>
+                <div className="exp-row" onClick={() => setSwipedId(swiped ? null : e.id)}>
+                  <div className="cat-icon" style={{ background: cat.color }}>
+                    <Icon name={cat.icon} />
+                  </div>
+                  <div className="exp-main">
+                    <div className="exp-title">{e.title}</div>
+                    <div className="exp-meta">{payer.name} · {formatRelativeDate(e.createdAt)} · {cat.label}</div>
+                  </div>
+                  <div className="exp-amt">
+                    <div className="exp-peso">{fmtPeso(e.peso)}</div>
+                    <div className="exp-won">{fmtWon(e.peso)}</div>
+                    <div className="exp-won">{fmtUsd(e.peso)}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {expenses.length > 0 && (
+          <p className="footnote" style={{ padding: '8px 16px 0', textAlign: 'center' }}>항목을 탭하면 삭제 버튼이 나와요</p>
+        )}
+        <div className="bottom-pad"/>
+      </div>
+    </>
+  );
+}
+
+// =============================================================
+// ADD EXPENSE
+// =============================================================
+function AddScreen({ onSave, onCancel, fxTick }) {
+  const [ccy, setCcy] = useState('PHP');
+  const [raw, setRaw] = useState('');
+  const [payer, setPayer] = useState('th');
+  const [cat, setCat] = useState('food');
+  const [memo, setMemo] = useState('');
+  const [splitIds, setSplitIds] = useState(MEMBERS.map(m => m.id));
+  const [saving, setSaving] = useState(false);
+
+  const amountNumber = Number(raw || 0);
+  const peso = ccy === 'PHP' ? amountNumber
+             : ccy === 'KRW' ? amountNumber / FX.KRW
+             :                 amountNumber / FX.USD;
+
+  const otherPreviews = ccy === 'PHP' ? [['KRW', fmtWon(peso)], ['USD', fmtUsd(peso)]]
+                      : ccy === 'KRW' ? [['PHP', fmtPeso(peso)], ['USD', fmtUsd(peso)]]
+                      :                 [['PHP', fmtPeso(peso)], ['KRW', fmtWon(peso)]];
+
+  const key = (k) => {
+    if (k === '⌫') setRaw(r => r.slice(0, -1));
+    else if (k === '.') { if (!raw.includes('.')) setRaw(r => (r || '0') + '.'); }
+    else setRaw(r => (r === '0' ? k : r + k));
+  };
+
+  const toggleSplit = (id) => {
+    setSplitIds(arr => arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id]);
+  };
+
+  const save = async () => {
+    if (!raw || amountNumber <= 0 || splitIds.length === 0 || saving) return;
+    setSaving(true);
+    try {
+      await onSave({
+        title: memo.trim() || CATEGORIES.find(c => c.id === cat).label,
+        cat, payer, peso: Math.round(peso), split: splitIds,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="add-screen">
+      <StatusBar />
+      <div className="navbar">
+        <button onClick={onCancel}>취소</button>
+        <span className="navbar-title">지출 추가</span>
+        <button onClick={save} style={{ fontWeight: 600, opacity: (!raw || amountNumber <= 0 || saving) ? 0.4 : 1 }}>
+          {saving ? '저장 중…' : '저장'}
+        </button>
+      </div>
+
+      <div className="content">
+        <div className="amount-big">
+          <div className="amount-label">금액</div>
+          <div className="amount-row">
+            <span className="amount-sym">{ccy === 'PHP' ? '₱' : ccy === 'KRW' ? '₩' : '$'}</span>
+            <span className="amount-val">{raw ? Number(raw).toLocaleString() : '0'}</span>
+          </div>
+          <div className="amount-convert">
+            {raw ? otherPreviews.map(([k, v]) => <span key={k} style={{ marginRight: 12 }}>≈ {v}</span>) : ' '}
+          </div>
+          <div className="ccy-toggle">
+            <button className={ccy==='PHP'?'on':''} onClick={() => setCcy('PHP')}>₱ 페소</button>
+            <button className={ccy==='KRW'?'on':''} onClick={() => setCcy('KRW')}>₩ 원</button>
+            <button className={ccy==='USD'?'on':''} onClick={() => setCcy('USD')}>$ 달러</button>
+          </div>
+        </div>
+
+        <div className="keypad">
+          {['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(k => (
+            <button key={k} className={'key' + (k === '⌫' ? ' back' : '')} onClick={() => key(k)}>{k}</button>
+          ))}
+        </div>
+
+        <div className="section-header">카테고리</div>
+        <div className="chip-row">
+          {CATEGORIES.map(c => (
+            <button key={c.id} className={'chip' + (cat === c.id ? ' selected' : '')} onClick={() => setCat(c.id)}>
+              <Icon name={c.icon} /> {c.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="section-header">결제자</div>
+        <div className="chip-row">
+          {MEMBERS.map(m => (
+            <button key={m.id} className={'chip' + (payer === m.id ? ' selected' : '')} onClick={() => setPayer(m.id)} style={{ padding: '6px 12px 6px 6px' }}>
+              <Avatar m={m} size={24}/> {m.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="section-header">메모</div>
+        <div className="card" style={{ margin: '0 16px' }}>
+          <div className="field">
+            <input placeholder="예: 조이조이 해산물" value={memo} onChange={e => setMemo(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="section-header">나눌 사람 · {splitIds.length}명</div>
+        <div className="member-grid">
+          {MEMBERS.map(m => {
+            const on = splitIds.includes(m.id);
+            return (
+              <div key={m.id} className={'member-chip' + (on ? ' on' : '')} onClick={() => toggleSplit(m.id)}>
+                <Avatar m={m} size={28}/>
+                <span>{m.name}</span>
+                {on && <Icon name="check" className="check" />}
+                <style>{`.member-chip svg.check { margin-left:auto; color:#007AFF; width:18px; height:18px; }`}</style>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ padding: '16px', marginTop: 4 }}>
+          <button className="btn-primary" onClick={save} disabled={!raw || amountNumber <= 0 || splitIds.length === 0 || saving}>
+            {saving ? '저장 중…' : '저장'}
+          </button>
+        </div>
+        <div className="bottom-pad"/>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================
+// STATS (멤버별 지출 — "카드 긁은 사람 기준")
+// =============================================================
+function StatsScreen({ expenses, fxTick }) {
+  const perMember = useMemo(() => {
+    const rows = MEMBERS.map(m => {
+      const mine = expenses.filter(e => e.payer === m.id);
+      const total = mine.reduce((s, e) => s + (e.peso || 0), 0);
+      const byCat = CATEGORIES
+        .map(c => ({
+          ...c,
+          total: mine.filter(e => e.cat === c.id).reduce((s, e) => s + (e.peso || 0), 0),
+        }))
+        .filter(c => c.total > 0)
+        .sort((a, b) => b.total - a.total);
+      return { ...m, total, count: mine.length, byCat };
+    });
+    rows.sort((a, b) => b.total - a.total);
+    return rows;
+  }, [expenses]);
+
+  const grandTotal = perMember.reduce((s, m) => s + m.total, 0);
+  const perPerson = grandTotal / MEMBERS.length;
+  const maxTotal = perMember[0]?.total || 0;
+
+  const [expandedId, setExpandedId] = useState(null);
+
+  return (
+    <>
+      <StatusBar />
+      <div className="content">
+        <div style={{ padding: '4px 16px 0' }}>
+          <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>멤버별 지출</div>
+          <h1 className="large-title" style={{ fontSize: 32, lineHeight: '36px', marginTop: 2, whiteSpace: 'nowrap' }}>누가 얼마 썼나</h1>
+          <p className="subhead" style={{ marginTop: 4 }}>카드 긁은 사람 기준 · 나중에 나눠서 내요</p>
+        </div>
+
+        <div className="stats-summary" style={{ marginTop: 12 }}>
+          <div className="stats-tile">
+            <div className="stats-tile-label">총합</div>
+            <div className="stats-tile-amount">{fmtPeso(grandTotal)}</div>
+            <div className="stats-tile-sub">{fmtWon(grandTotal)} · {fmtUsd(grandTotal)}</div>
+          </div>
+          <div className="stats-tile">
+            <div className="stats-tile-label">1인 평균</div>
+            <div className="stats-tile-amount">{fmtPeso(perPerson)}</div>
+            <div className="stats-tile-sub">{fmtWon(perPerson)} · {fmtUsd(perPerson)}</div>
+          </div>
+        </div>
+
+        <div className="section-header">멤버별 결제 순위</div>
+        <div className="card" style={{ margin: '0 16px', overflow: 'hidden' }}>
+          {perMember.map((m, i) => {
+            const expanded = expandedId === m.id;
+            const pct = grandTotal > 0 ? (m.total / grandTotal) * 100 : 0;
+            const barPct = maxTotal > 0 ? (m.total / maxTotal) * 100 : 0;
+            return (
+              <div key={m.id} className="rank-row-wrap">
+                <div className="rank-row" onClick={() => setExpandedId(expanded ? null : m.id)}>
+                  <span className="rank-num">{i + 1}</span>
+                  <Avatar m={m} size={36}/>
+                  <div className="rank-body">
+                    <div className="rank-head">
+                      <span className="rank-name">{m.name}</span>
+                      <span className="rank-amt">{fmtPeso(m.total)}</span>
+                    </div>
+                    <div className="rank-bar-track">
+                      <div className="rank-bar-fill" style={{ width: barPct + '%', background: m.color }} />
+                    </div>
+                    <div className="rank-meta">
+                      <span>{m.count}건 · 전체의 {Math.round(pct)}%</span>
+                      <span>{fmtWon(m.total)} · {fmtUsd(m.total)}</span>
+                    </div>
+                  </div>
+                  <Icon name="chevron" className={'rank-chevron' + (expanded ? ' open' : '')} />
+                </div>
+                {expanded && (
+                  <div className="rank-expand">
+                    {m.byCat.length === 0 ? (
+                      <p className="footnote">이 멤버가 결제한 내역이 없어요.</p>
+                    ) : m.byCat.map(c => {
+                      const cPct = m.total > 0 ? (c.total / m.total) * 100 : 0;
+                      return (
+                        <div key={c.id} className="rank-cat">
+                          <div className="rank-cat-head">
+                            <div className="cat-icon" style={{ background: c.color }}>
+                              <Icon name={c.icon} />
+                            </div>
+                            <span className="rank-cat-name">{c.label}</span>
+                            <span className="rank-cat-amt">{fmtPeso(c.total)}</span>
+                          </div>
+                          <div className="rank-cat-bar">
+                            <div className="rank-cat-bar-fill" style={{ width: cPct + '%', background: c.color }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="bottom-pad"/>
+      </div>
+    </>
+  );
+}
+
+// =============================================================
+// FX CALCULATOR
+// =============================================================
+const CCY_META = {
+  PHP: { sym: '₱', code: 'PHP', name: '필리핀 페소', flag: '🇵🇭', color: '#3B82F6' },
+  KRW: { sym: '₩', code: 'KRW', name: '원',         flag: '🇰🇷', color: '#EF4444' },
+  USD: { sym: '$', code: 'USD', name: '미국 달러',   flag: '🇺🇸', color: '#10B981' },
+};
+
+const convert = (val, from, to) => {
+  const peso = from === 'PHP' ? val : from === 'KRW' ? val / FX.KRW : val / FX.USD;
+  return to === 'PHP' ? peso : to === 'KRW' ? peso * FX.KRW : peso * FX.USD;
+};
+
+const fmtForCcy = (n, ccy) => {
+  if (!isFinite(n)) return '0';
+  if (ccy === 'USD') return Math.abs(n) < 100 ? n.toFixed(2) : Math.round(n).toLocaleString();
+  if (ccy === 'KRW') return Math.round(n).toLocaleString();
+  return Math.abs(n) < 10 ? n.toFixed(2) : Math.round(n).toLocaleString();
+};
+
+function FxRow({ ccy, active, value, onFocus }) {
+  const m = CCY_META[ccy];
+  return (
+    <div className={'fx-row' + (active ? ' active' : '')} onClick={onFocus}>
+      <div className="fx-flag">{m.flag}</div>
+      <div className="fx-meta">
+        <div className="fx-code">{m.code}</div>
+        <div className="fx-name">{m.name}</div>
+      </div>
+      <div className="fx-amount">
+        <span className="fx-sym">{m.sym}</span>
+        <span className={'fx-val' + (active ? ' active' : '')}>{value}</span>
+        {active && <span className="fx-caret"/>}
+      </div>
+    </div>
+  );
+}
+
+function FxScreen({ fxTick, fxStatus, fxUpdatedAt, onRefreshFx }) {
+  const [active, setActive] = useState('PHP');
+  const [raw, setRaw] = useState('1000');
+
+  const val = Number(raw || 0);
+  const values = {
+    PHP: active === 'PHP' ? raw : fmtForCcy(convert(val, active, 'PHP'), 'PHP'),
+    KRW: active === 'KRW' ? raw : fmtForCcy(convert(val, active, 'KRW'), 'KRW'),
+    USD: active === 'USD' ? raw : fmtForCcy(convert(val, active, 'USD'), 'USD'),
+  };
+  const display = (c) => {
+    if (c === active) {
+      if (!raw) return '0';
+      const [i, d] = raw.split('.');
+      return Number(i).toLocaleString() + (raw.includes('.') ? '.' + (d || '') : '');
+    }
+    return values[c];
+  };
+
+  const key = (k) => {
+    if (k === '⌫') setRaw(r => r.slice(0, -1));
+    else if (k === '.') { if (!raw.includes('.')) setRaw(r => (r || '0') + '.'); }
+    else if (k === 'C') setRaw('');
+    else setRaw(r => (r === '0' ? k : r + k));
+  };
+
+  const quickAmts = [1000, 5000, 10000, 50000];
+  const updatedTime = fxUpdatedAt ? formatRelativeDate(fxUpdatedAt) : '';
+
+  return (
+    <>
+      <StatusBar />
+      <div className="content">
+        <div style={{ padding: '4px 16px 0' }}>
+          <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>환율 계산기</div>
+          <h1 className="large-title" style={{ fontSize: 32, lineHeight: '36px', marginTop: 2, whiteSpace: 'nowrap' }}>환전</h1>
+          <p className="subhead" style={{ marginTop: 4 }}>세부 여행 중에 머릿속 계산 대신 쓰세요.</p>
+        </div>
+
+        <div className="fx-card">
+          {['PHP', 'KRW', 'USD'].map(c => (
+            <FxRow key={c} ccy={c} active={active === c}
+              value={display(c)}
+              onFocus={() => { setActive(c); setRaw(''); }} />
+          ))}
+        </div>
+
+        <div className="section-header">자주 쓰는 금액 · {CCY_META[active].name}</div>
+        <div className="chip-row" style={{ paddingTop: 4 }}>
+          {quickAmts.map(a => (
+            <button key={a} className="chip" onClick={() => setRaw(String(a))}>
+              {CCY_META[active].sym}{a.toLocaleString()}
+            </button>
+          ))}
+        </div>
+
+        <div className="section-header">현재 환율</div>
+        <div className="card" style={{ padding: '12px 16px' }}>
+          <div className="fx-rate-row"><span>₱1</span><span>=</span><span>₩{FX.KRW.toFixed(2)}</span></div>
+          <div className="fx-rate-row"><span>₱1</span><span>=</span><span>${FX.USD.toFixed(4)}</span></div>
+          <div className="fx-rate-row"><span>$1</span><span>=</span><span>₩{Math.round(FX.KRW / FX.USD).toLocaleString()}</span></div>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop: 8 }}>
+            <p className="footnote">
+              {fxStatus === 'live' ? '실시간 환율' : fxStatus === 'loading' ? '불러오는 중…' : '기본 환율'}
+              {updatedTime && ' · ' + updatedTime}
+            </p>
+            <button
+              onClick={onRefreshFx}
+              style={{ border:0, background:'transparent', color:'#007AFF', font:'500 13px var(--font-sans)', cursor:'pointer' }}
+            >새로고침</button>
+          </div>
+        </div>
+
+        <div className="keypad" style={{ marginTop: 16 }}>
+          {['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(k => (
+            <button key={k} className={'key' + (k === '⌫' ? ' back' : '')} onClick={() => key(k)}>{k}</button>
+          ))}
+        </div>
+        <div style={{ padding: '0 16px' }}>
+          <button className="key" onClick={() => key('C')} style={{ width: '100%', marginTop: 8, background: 'rgba(255,59,48,0.08)', color: '#FF3B30', fontWeight: 600, fontSize: 15 }}>전체 지우기</button>
+        </div>
+        <div className="bottom-pad"/>
+      </div>
+    </>
+  );
+}
+
+// =============================================================
+// TAB BAR
+// =============================================================
+function TabBar({ active, onChange }) {
+  const tabs = [
+    { id: 'home',   label: '홈',   icon: 'home' },
+    { id: 'add',    label: '추가', icon: 'plus' },
+    { id: 'stats',  label: '통계', icon: 'scale' },
+    { id: 'fx',     label: '환전', icon: 'swap' },
+  ];
+  return (
+    <div className="tabbar">
+      {tabs.map(t => (
+        <button key={t.id} className={active === t.id ? 'active' : ''} onClick={() => onChange(t.id)}>
+          <Icon name={t.icon} />
+          <span>{t.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// =============================================================
+// APP shell
+// =============================================================
+function App() {
+  const [room, setRoom] = useState(null);
+  const [tab, setTab] = useState('home');
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [banner, setBanner] = useState(null); // { kind, msg }
+  const [fxTick, setFxTick] = useState(0);
+  const [fxStatus, setFxStatus] = useState('loading'); // loading | live | fallback
+  const [fxUpdatedAt, setFxUpdatedAt] = useState(null);
+
+  // Fetch live exchange rate. Uses ₱ as base → we need rates for KRW and USD.
+  const fetchFx = useCallback(async () => {
+    setFxStatus('loading');
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/PHP');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data && data.result === 'success' && data.rates && data.rates.KRW && data.rates.USD) {
+        FX.KRW = Number(data.rates.KRW);
+        FX.USD = Number(data.rates.USD);
+        setFxStatus('live');
+        setFxUpdatedAt(new Date());
+        setFxTick(t => t + 1);
+      } else {
+        throw new Error('unexpected payload');
+      }
+    } catch (err) {
+      console.warn('FX fetch failed:', err);
+      setFxStatus('fallback');
+      setFxTick(t => t + 1);
+    }
+  }, []);
+
+  useEffect(() => { fetchFx(); }, [fetchFx]);
+
+  // Firestore listener for the current room's expenses
+  useEffect(() => {
+    if (!room) return;
+    if (!db) {
+      // Demo mode: seed data, no listener
+      setExpenses(SEED_EXPENSES);
+      return;
+    }
+    setLoading(true);
+    const ref = db.collection('rooms').doc(room).collection('expenses').orderBy('createdAt', 'desc');
+    const unsub = ref.onSnapshot(
+      (snap) => {
+        const rows = snap.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            title: data.title,
+            cat: data.cat,
+            payer: data.payer,
+            peso: Number(data.peso) || 0,
+            split: data.split || [],
+            createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : (data.createdAt || null),
+          };
+        });
+        setExpenses(rows);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Firestore listen failed:', err);
+        setBanner({ kind: 'error', msg: '데이터 불러오기 실패: ' + err.message });
+        setLoading(false);
+      }
+    );
+    return () => unsub();
+  }, [room]);
+
+  const addExpense = async (e) => {
+    if (!db) {
+      setExpenses(arr => [{ ...e, id: 'local-' + Date.now(), createdAt: new Date() }, ...arr]);
+      setTab('home');
+      return;
+    }
+    try {
+      await db.collection('rooms').doc(room).collection('expenses').add({
+        ...e,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      setTab('home');
+    } catch (err) {
+      console.error('add failed:', err);
+      setBanner({ kind: 'error', msg: '저장 실패: ' + err.message });
+      throw err;
+    }
+  };
+
+  const deleteExpense = async (id) => {
+    if (!db) {
+      setExpenses(arr => arr.filter(e => e.id !== id));
+      return;
+    }
+    try {
+      await db.collection('rooms').doc(room).collection('expenses').doc(id).delete();
+    } catch (err) {
+      console.error('delete failed:', err);
+      setBanner({ kind: 'error', msg: '삭제 실패: ' + err.message });
+    }
+  };
+
+  if (!room) return (
+    <>
+      {!FIREBASE_CONFIGURED && (
+        <Banner kind="info">
+          Firebase 미설정 · 로컬 데모 모드 (데이터 공유 안 됨)
+        </Banner>
+      )}
+      <EntryScreen onEnter={setRoom} />
+    </>
+  );
+
+  return (
+    <>
+      {banner && <Banner kind={banner.kind} onDismiss={() => setBanner(null)}>{banner.msg}</Banner>}
+      {tab === 'home'   && <HomeScreen expenses={expenses} onDelete={deleteExpense} roomCode={room} fxTick={fxTick} fxStatus={fxStatus} loading={loading} />}
+      {tab === 'add'    && <AddScreen onSave={addExpense} onCancel={() => setTab('home')} fxTick={fxTick} />}
+      {tab === 'stats'  && <StatsScreen expenses={expenses} fxTick={fxTick} />}
+      {tab === 'fx'     && <FxScreen fxTick={fxTick} fxStatus={fxStatus} fxUpdatedAt={fxUpdatedAt} onRefreshFx={fetchFx} />}
+      <TabBar active={tab} onChange={setTab} />
+      <div className="home-indicator"/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+
+</script>
+
+</body></html>

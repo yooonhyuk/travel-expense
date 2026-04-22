@@ -1,0 +1,16 @@
+# WSL / editor junk
+*:Zone.Identifier
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Node (in case anyone runs tooling later)
+node_modules/
+
+# Vercel CLI artifacts
+.vercel/
+
+# Design reference screenshots (keep locally, don't deploy)
+*.png
