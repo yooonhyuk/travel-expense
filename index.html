@@ -515,14 +515,19 @@ if (FIREBASE_CONFIGURED) {
 // =============================================================
 // Static data
 // =============================================================
-const MEMBERS = [
-  { id: 'th', name: '태형', color: '#007AFF' },
-  { id: 'ms', name: '민성', color: '#34C759' },
-  { id: 'yj', name: '영진', color: '#FF9500' },
-  { id: 'tw', name: '태욱', color: '#AF52DE' },
-  { id: 'sm', name: '성민', color: '#FF2D55' },
-  { id: 'yh', name: '윤혁', color: '#30B0C7' },
+// Default member profiles (used as seed when Firestore has no member docs yet).
+// Runtime lookups read from MembersContext, so these defaults can be overridden
+// by per-room edits (nickname, photo). IDs are fixed — only name/photo edit.
+const DEFAULT_MEMBERS = [
+  { id: 'th', name: '태형', color: '#007AFF', photoUrl: null },
+  { id: 'ms', name: '민성', color: '#34C759', photoUrl: null },
+  { id: 'yj', name: '영진', color: '#FF9500', photoUrl: null },
+  { id: 'tw', name: '태욱', color: '#AF52DE', photoUrl: null },
+  { id: 'sm', name: '성민', color: '#FF2D55', photoUrl: null },
+  { id: 'yh', name: '윤혁', color: '#30B0C7', photoUrl: null },
 ];
+
+const MembersContext = React.createContext(DEFAULT_MEMBERS);
 
 // Exchange rates — ₱1 base. Mutated on successful live fetch.
 const FX = { KRW: 24.5, USD: 0.017 };
@@ -667,7 +672,16 @@ const StatusBar = ({ dark }) => {
 };
 
 const Avatar = ({ m, size = 36 }) => (
-  <div className="avatar" style={{ background: m.color, width: size, height: size, fontSize: size * 0.4 }}>{m.name[0]}</div>
+  m && m.photoUrl ? (
+    <img
+      src={m.photoUrl}
+      alt={m.name}
+      className="avatar"
+      style={{ width: size, height: size, objectFit: 'cover' }}
+    />
+  ) : (
+    <div className="avatar" style={{ background: m.color, width: size, height: size, fontSize: size * 0.4 }}>{m.name[0]}</div>
+  )
 );
 
 const Banner = ({ kind = 'info', children, onDismiss }) => (
@@ -716,7 +730,8 @@ function EntryScreen({ onEnter }) {
 // =============================================================
 // HOME / HISTORY
 // =============================================================
-function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
+function HomeScreen({ expenses, onEdit, onEditMember, roomCode, fxTick, fxStatus, loading }) {
+  const MEMBERS = React.useContext(MembersContext);
   const totalKRW = expenses.reduce((s,e) => s + expenseKRW(e), 0);
   const byMember = MEMBERS.map(m => {
     const paidKRW = expenses.filter(e => e.payer === m.id).reduce((s,e) => s + expenseKRW(e), 0);
@@ -747,10 +762,13 @@ function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
           </div>
         </div>
 
-        <div className="section-header">멤버별 결제 금액</div>
+        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <span>멤버별 결제 금액</span>
+          <span style={{ textTransform:'none', letterSpacing: 0, color: 'var(--label-tertiary)', fontWeight: 400 }}>탭해서 편집</span>
+        </div>
         <div className="members-strip">
           {byMember.map(m => (
-            <div key={m.id} className="member-card">
+            <div key={m.id} className="member-card" onClick={() => onEditMember && onEditMember(m)} style={{ cursor: 'pointer' }}>
               <Avatar m={m} />
               <span className="member-name">{m.name}</span>
               <span className="member-amt">{fmtKRW(m.paidKRW)}</span>
@@ -805,6 +823,7 @@ function HomeScreen({ expenses, onEdit, roomCode, fxTick, fxStatus, loading }) {
 // ADD EXPENSE
 // =============================================================
 function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
+  const MEMBERS = React.useContext(MembersContext);
   const isEdit = !!editing;
   // Prefill from editing's ORIGINAL currency/amount (not the KRW-normalized value)
   const editCcy = isEdit ? expenseCcy(editing) : 'KRW';
@@ -971,6 +990,7 @@ function AddScreen({ onSave, onCancel, onDelete, editing, fxTick }) {
 // STATS (멤버별 지출 — "카드 긁은 사람 기준")
 // =============================================================
 function StatsScreen({ expenses, fxTick }) {
+  const MEMBERS = React.useContext(MembersContext);
   const perMember = useMemo(() => {
     const rows = MEMBERS.map(m => {
       const mine = expenses.filter(e => e.payer === m.id);
@@ -986,7 +1006,7 @@ function StatsScreen({ expenses, fxTick }) {
     });
     rows.sort((a, b) => b.total - a.total);
     return rows;
-  }, [expenses, fxTick]);
+  }, [expenses, fxTick, MEMBERS]);
 
   const grandTotal = perMember.reduce((s, m) => s + m.total, 0);
   const perPerson = grandTotal / MEMBERS.length;
@@ -1081,6 +1101,7 @@ function StatsScreen({ expenses, fxTick }) {
 // SETTLE (minimal — 누가 누구에게 얼마)
 // =============================================================
 function SettleScreen({ expenses, fxTick }) {
+  const MEMBERS = React.useContext(MembersContext);
   const transfers = useMemo(() => {
     // All balance math in integer KRW (the 대표 통화). Each expense is converted
     // to KRW via current FX, rounded, then split with floor + remainder so
@@ -1112,7 +1133,7 @@ function SettleScreen({ expenses, fxTick }) {
       if (creditors[j].bal === 0) j++;
     }
     return out;
-  }, [expenses, fxTick]);
+  }, [expenses, fxTick, MEMBERS]);
 
   const totalKRW = expenses.reduce((s,e) => s + expenseKRW(e), 0);
 
@@ -1159,6 +1180,151 @@ function SettleScreen({ expenses, fxTick }) {
         <div className="bottom-pad"/>
       </div>
     </>
+  );
+}
+
+// =============================================================
+// MEMBER EDIT (photo + nickname)
+// =============================================================
+// Resize + compress an image file to a square JPEG data URL.
+// Canvas draws a center-crop of the image into a maxSize×maxSize square.
+async function fileToAvatarDataURL(file, maxSize = 192, quality = 0.82) {
+  if (!file || !file.type || !file.type.startsWith('image/')) {
+    throw new Error('이미지 파일만 업로드할 수 있어요');
+  }
+  const src = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const im = new Image();
+      im.onload = () => resolve(im);
+      im.onerror = () => reject(new Error('이미지를 읽지 못했어요'));
+      im.src = src;
+    });
+    const size = Math.min(img.naturalWidth, img.naturalHeight);
+    const sx = (img.naturalWidth - size) / 2;
+    const sy = (img.naturalHeight - size) / 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxSize;
+    canvas.height = maxSize;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, sx, sy, size, size, 0, 0, maxSize, maxSize);
+    return canvas.toDataURL('image/jpeg', quality);
+  } finally {
+    URL.revokeObjectURL(src);
+  }
+}
+
+function MemberEditScreen({ member, onSave, onCancel }) {
+  const [name, setName] = useState(member.name || '');
+  const [photoUrl, setPhotoUrl] = useState(member.photoUrl || null);
+  const [busy, setBusy] = useState(null); // null | 'uploading' | 'saving'
+  const [err, setErr] = useState(null);
+  const fileRef = React.useRef(null);
+
+  const pickPhoto = () => { if (fileRef.current) fileRef.current.click(); };
+
+  const onFileChange = async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = ''; // allow re-picking same file
+    if (!f) return;
+    setErr(null);
+    setBusy('uploading');
+    try {
+      const dataUrl = await fileToAvatarDataURL(f, 192, 0.82);
+      // Firestore doc safety: keep under ~500KB
+      if (dataUrl.length > 500_000) throw new Error('사진이 너무 커요. 다시 시도해주세요.');
+      setPhotoUrl(dataUrl);
+    } catch (e2) {
+      setErr(e2.message || '사진 처리 실패');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const removePhoto = () => setPhotoUrl(null);
+
+  const save = async () => {
+    if (busy) return;
+    const trimmed = name.trim();
+    if (!trimmed) { setErr('닉네임을 입력해주세요'); return; }
+    if (trimmed.length > 20) { setErr('닉네임은 20자 이내로 입력해주세요'); return; }
+    setBusy('saving');
+    setErr(null);
+    try {
+      await onSave({ name: trimmed, photoUrl: photoUrl || null });
+    } catch (e) {
+      setErr('저장 실패: ' + (e.message || e));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const previewMember = { ...member, name: name || member.name, photoUrl };
+
+  return (
+    <div className="add-screen">
+      <StatusBar />
+      <div className="navbar">
+        <button onClick={onCancel}>취소</button>
+        <span className="navbar-title">멤버 편집</span>
+        <button onClick={save} style={{ fontWeight: 600, opacity: busy ? 0.4 : 1 }}>
+          {busy === 'saving' ? '저장 중…' : '완료'}
+        </button>
+      </div>
+
+      <div className="content">
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding: '28px 16px 8px' }}>
+          <Avatar m={previewMember} size={120}/>
+          <div style={{ display:'flex', gap: 10, marginTop: 16 }}>
+            <button
+              onClick={pickPhoto}
+              disabled={!!busy}
+              style={{
+                padding: '10px 16px', border: 0, borderRadius: 999,
+                background: 'rgba(0,122,255,0.1)', color: '#007AFF',
+                font: '600 14px var(--font-sans)', cursor: 'pointer',
+              }}
+            >
+              {busy === 'uploading' ? '업로드 중…' : (photoUrl ? '사진 바꾸기' : '사진 올리기')}
+            </button>
+            {photoUrl && (
+              <button
+                onClick={removePhoto}
+                disabled={!!busy}
+                style={{
+                  padding: '10px 16px', border: 0, borderRadius: 999,
+                  background: 'rgba(255,59,48,0.08)', color: '#FF3B30',
+                  font: '600 14px var(--font-sans)', cursor: 'pointer',
+                }}
+              >사진 삭제</button>
+            )}
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
+        </div>
+
+        <div className="section-header">닉네임</div>
+        <div className="card" style={{ margin: '0 16px' }}>
+          <div className="field">
+            <input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              maxLength={20}
+              placeholder="닉네임 (최대 20자)"
+              autoCapitalize="off"
+            />
+          </div>
+        </div>
+        <p className="footnote" style={{ padding: '6px 20px 0' }}>
+          원래 멤버가 아니어도 자유롭게 편집할 수 있어요. 방 코드 아는 사람 모두한테 보여요.
+        </p>
+
+        {err && (
+          <p className="footnote" style={{ padding: '10px 20px 0', color: '#FF3B30' }}>{err}</p>
+        )}
+
+        <div className="bottom-pad"/>
+      </div>
+    </div>
   );
 }
 
@@ -1318,6 +1484,8 @@ function App() {
   const [room, setRoom] = useState(null);
   const [tab, setTab] = useState('home');
   const [editing, setEditing] = useState(null); // expense being edited, or null
+  const [editingMember, setEditingMember] = useState(null); // member being edited, or null
+  const [members, setMembers] = useState(DEFAULT_MEMBERS);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [banner, setBanner] = useState(null); // { kind, msg }
@@ -1389,6 +1557,43 @@ function App() {
     return () => unsub();
   }, [room]);
 
+  // Firestore listener for per-room member profile overrides (name + photoUrl)
+  useEffect(() => {
+    if (!room || !db) {
+      setMembers(DEFAULT_MEMBERS);
+      return;
+    }
+    const ref = db.collection('rooms').doc(room).collection('members');
+    const unsub = ref.onSnapshot(
+      (snap) => {
+        const overrides = {};
+        snap.docs.forEach(d => { overrides[d.id] = d.data() || {}; });
+        setMembers(DEFAULT_MEMBERS.map(dm => ({
+          ...dm,
+          name: (overrides[dm.id] && typeof overrides[dm.id].name === 'string' && overrides[dm.id].name.trim()) || dm.name,
+          photoUrl: (overrides[dm.id] && overrides[dm.id].photoUrl) || null,
+        })));
+      },
+      (err) => {
+        console.error('members listen failed:', err);
+        setMembers(DEFAULT_MEMBERS);
+      }
+    );
+    return () => unsub();
+  }, [room]);
+
+  const updateMember = async (memberId, { name, photoUrl }) => {
+    if (!db) {
+      // Local demo mode — update in-memory only
+      setMembers(arr => arr.map(m => m.id === memberId ? { ...m, name, photoUrl } : m));
+      return;
+    }
+    await db.collection('rooms').doc(room).collection('members').doc(memberId).set({
+      name,
+      photoUrl: photoUrl || null,
+    }, { merge: true });
+  };
+
   const goHome = () => { setEditing(null); setTab('home'); };
 
   const openAddNew = () => { setEditing(null); setTab('add'); };
@@ -1457,17 +1662,40 @@ function App() {
     </>
   );
 
+  // Member edit overlays the whole app (like a full-screen modal)
+  if (editingMember) {
+    return (
+      <MembersContext.Provider value={members}>
+        <MemberEditScreen
+          key={editingMember.id}
+          member={members.find(m => m.id === editingMember.id) || editingMember}
+          onCancel={() => setEditingMember(null)}
+          onSave={async (payload) => {
+            try {
+              await updateMember(editingMember.id, payload);
+              setEditingMember(null);
+            } catch (err) {
+              console.error('member save failed:', err);
+              setBanner({ kind: 'error', msg: '멤버 저장 실패: ' + err.message });
+              throw err;
+            }
+          }}
+        />
+      </MembersContext.Provider>
+    );
+  }
+
   return (
-    <>
+    <MembersContext.Provider value={members}>
       {banner && <Banner kind={banner.kind} onDismiss={() => setBanner(null)}>{banner.msg}</Banner>}
-      {tab === 'home'   && <HomeScreen expenses={expenses} onEdit={openEdit} roomCode={room} fxTick={fxTick} fxStatus={fxStatus} loading={loading} />}
+      {tab === 'home'   && <HomeScreen expenses={expenses} onEdit={openEdit} onEditMember={setEditingMember} roomCode={room} fxTick={fxTick} fxStatus={fxStatus} loading={loading} />}
       {tab === 'add'    && <AddScreen key={editing ? editing.id : 'new'} onSave={saveExpense} onCancel={goHome} onDelete={deleteExpense} editing={editing} fxTick={fxTick} />}
       {tab === 'stats'  && <StatsScreen expenses={expenses} fxTick={fxTick} />}
       {tab === 'settle' && <SettleScreen expenses={expenses} fxTick={fxTick} />}
       {tab === 'fx'     && <FxScreen fxTick={fxTick} fxStatus={fxStatus} fxUpdatedAt={fxUpdatedAt} onRefreshFx={fetchFx} />}
       <TabBar active={tab} onChange={(t) => { setEditing(null); setTab(t); }} />
       <div className="home-indicator"/>
-    </>
+    </MembersContext.Provider>
   );
 }
 
