@@ -498,6 +498,35 @@
   .settle-sum-detail-row { display: flex; justify-content: space-between; padding: 6px 0; font: 500 14px var(--font-sans); color: var(--label-secondary); font-variant-numeric: tabular-nums; }
   .settle-sum-detail-row + .settle-sum-detail-row { border-top: 0.5px solid rgba(60,60,67,0.06); }
   .settle-sum-detail-amt { color: var(--label); font-weight: 600; }
+
+  /* Photo lightbox (tap avatar in member edit to view larger) */
+  .photo-lightbox {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.78);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: lightbox-fade 0.15s ease-out;
+  }
+  @keyframes lightbox-fade { from { opacity: 0; } to { opacity: 1; } }
+  .photo-lightbox-inner { position: relative; }
+  .photo-lightbox-inner img {
+    display: block;
+    width: min(78vw, 320px); height: min(78vw, 320px);
+    max-width: 78vh; max-height: 78vh;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  }
+  .photo-lightbox-close {
+    position: absolute; top: -12px; right: -12px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; color: #000; border: 0;
+    font: 600 16px var(--font-sans); cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: grid; place-items: center;
+  }
 </style>
 </head>
 <body>
@@ -1337,6 +1366,7 @@ function MemberEditScreen({ member, onSave, onCancel }) {
   const [photoUrl, setPhotoUrl] = useState(member.photoUrl || null);
   const [busy, setBusy] = useState(null); // null | 'uploading' | 'saving'
   const [err, setErr] = useState(null);
+  const [lightbox, setLightbox] = useState(false);
   const fileRef = React.useRef(null);
 
   const pickPhoto = () => { if (fileRef.current) fileRef.current.click(); };
@@ -1348,7 +1378,9 @@ function MemberEditScreen({ member, onSave, onCancel }) {
     setErr(null);
     setBusy('uploading');
     try {
-      const dataUrl = await fileToAvatarDataURL(f, 192, 0.82);
+      // 384×384 JPEG: crisp at the lightbox's ~280px display size on retina,
+      // still ~30-50KB base64 — well under the 1MB Firestore doc limit.
+      const dataUrl = await fileToAvatarDataURL(f, 384, 0.85);
       // Firestore doc safety: keep under ~500KB
       if (dataUrl.length > 500_000) throw new Error('사진이 너무 커요. 다시 시도해주세요.');
       setPhotoUrl(dataUrl);
@@ -1392,7 +1424,14 @@ function MemberEditScreen({ member, onSave, onCancel }) {
 
       <div className="content">
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding: '28px 16px 8px' }}>
-          <Avatar m={previewMember} size={120}/>
+          <div
+            onClick={() => setLightbox(true)}
+            role="button"
+            aria-label="사진 크게 보기"
+            style={{ cursor: 'zoom-in', borderRadius: '50%' }}
+          >
+            <Avatar m={previewMember} size={120}/>
+          </div>
           <div style={{ display:'flex', gap: 10, marginTop: 16 }}>
             <button
               onClick={pickPhoto}
@@ -1442,6 +1481,30 @@ function MemberEditScreen({ member, onSave, onCancel }) {
 
         <div className="bottom-pad"/>
       </div>
+
+      {lightbox && (
+        <div className="photo-lightbox" onClick={() => setLightbox(false)}>
+          <div className="photo-lightbox-inner" onClick={(e) => e.stopPropagation()}>
+            {photoUrl ? (
+              <img src={photoUrl} alt={previewMember.name} />
+            ) : (
+              <div
+                className="avatar"
+                style={{
+                  background: previewMember.color,
+                  width: 280, height: 280,
+                  fontSize: 112, borderRadius: '50%',
+                }}
+              >{previewMember.name[0]}</div>
+            )}
+            <button
+              className="photo-lightbox-close"
+              onClick={() => setLightbox(false)}
+              aria-label="닫기"
+            >✕</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
