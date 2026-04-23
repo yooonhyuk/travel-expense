@@ -527,6 +527,32 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     display: grid; place-items: center;
   }
+
+  /* FX tab — calculator-style sticky layout.
+     fx-top (title + result rows) and fx-bottom (keypad) don't scroll so the
+     user can always see the current conversion while typing. Middle is for
+     quick amounts + current rate info and scrolls if the viewport is tight. */
+  .fx-top { flex-shrink: 0; }
+  .fx-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .fx-scroll::-webkit-scrollbar { display: none; }
+  .fx-bottom {
+    flex-shrink: 0;
+    /* push keypad above the floating tabbar (~65px) + safe-area home bar */
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+    background: rgba(120,120,128,0.06);
+    border-top: 0.5px solid rgba(60,60,67,0.12);
+  }
+  .fx-card-compact { margin: 8px 16px; }
+  .fx-card-compact .fx-row { padding: 12px 16px; }
+  .fx-card-compact .fx-val { font-size: 20px; }
+  .fx-card-compact .fx-flag { font-size: 26px; }
+  .fx-clear-bar { display: flex; justify-content: flex-end; padding: 6px 16px 0; }
+  .fx-clear-bar button {
+    border: 0; background: transparent; color: #FF3B30;
+    font: 500 13px var(--font-sans); padding: 4px 8px; cursor: pointer;
+  }
+  .keypad-compact { padding: 6px 16px 10px; gap: 6px; background: transparent; }
+  .keypad-compact .key { padding: 10px 0; font-size: 20px; }
 </style>
 </head>
 <body>
@@ -1580,21 +1606,22 @@ function FxScreen({ fxTick, fxStatus, fxUpdatedAt, onRefreshFx }) {
   return (
     <>
       <StatusBar />
-      <div className="content">
-        <div style={{ padding: '4px 16px 0' }}>
-          <div className="caption" style={{ letterSpacing: '0.04em', textTransform:'uppercase' }}>환율 계산기</div>
-          <h1 className="large-title" style={{ fontSize: 32, lineHeight: '36px', marginTop: 2, whiteSpace: 'nowrap' }}>환전</h1>
-          <p className="subhead" style={{ marginTop: 4 }}>세부 여행 중에 머릿속 계산 대신 쓰세요.</p>
+      {/* Sticky top: title + FX result rows — always visible while typing */}
+      <div className="fx-top">
+        <div style={{ padding: '2px 16px 0' }}>
+          <h1 className="large-title" style={{ fontSize: 28, lineHeight: '32px', whiteSpace: 'nowrap' }}>환전</h1>
         </div>
-
-        <div className="fx-card">
+        <div className="fx-card fx-card-compact">
           {['PHP', 'KRW', 'USD'].map(c => (
             <FxRow key={c} ccy={c} active={active === c}
               value={display(c)}
               onFocus={() => { setActive(c); setRaw(''); }} />
           ))}
         </div>
+      </div>
 
+      {/* Scrollable middle: less-critical info */}
+      <div className="fx-scroll">
         <div className="section-header">자주 쓰는 금액 · {CCY_META[active].name}</div>
         <div className="chip-row" style={{ paddingTop: 4 }}>
           {quickAmts.map(a => (
@@ -1605,7 +1632,7 @@ function FxScreen({ fxTick, fxStatus, fxUpdatedAt, onRefreshFx }) {
         </div>
 
         <div className="section-header">현재 환율</div>
-        <div className="card" style={{ padding: '12px 16px' }}>
+        <div className="card" style={{ padding: '12px 16px', marginBottom: 12 }}>
           <div className="fx-rate-row"><span>₱1</span><span>=</span><span>₩{FX.KRW.toFixed(2)}</span></div>
           <div className="fx-rate-row"><span>₱1</span><span>=</span><span>${FX.USD.toFixed(4)}</span></div>
           <div className="fx-rate-row"><span>$1</span><span>=</span><span>₩{Math.round(FX.KRW / FX.USD).toLocaleString()}</span></div>
@@ -1620,16 +1647,18 @@ function FxScreen({ fxTick, fxStatus, fxUpdatedAt, onRefreshFx }) {
             >새로고침</button>
           </div>
         </div>
+      </div>
 
-        <div className="keypad" style={{ marginTop: 16 }}>
+      {/* Sticky bottom: clear bar + keypad — always accessible */}
+      <div className="fx-bottom">
+        <div className="fx-clear-bar">
+          <button onClick={() => key('C')}>전체 지우기</button>
+        </div>
+        <div className="keypad keypad-compact">
           {['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(k => (
             <button key={k} className={'key' + (k === '⌫' ? ' back' : '')} onClick={() => key(k)}>{k}</button>
           ))}
         </div>
-        <div style={{ padding: '0 16px' }}>
-          <button className="key" onClick={() => key('C')} style={{ width: '100%', marginTop: 8, background: 'rgba(255,59,48,0.08)', color: '#FF3B30', fontWeight: 600, fontSize: 15 }}>전체 지우기</button>
-        </div>
-        <div className="bottom-pad"/>
       </div>
     </>
   );
